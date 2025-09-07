@@ -1,5 +1,5 @@
 import { expandWodEntriesFromRss } from '@/lib/parse-wod';
-import { fetchWodRss } from '@/lib/rss';
+import { fetchWodRss, fetchWodThumbnailFromFallbackHtml } from '@/lib/rss';
 import { type WodDateGroup, type WodEntry } from '@/lib/schemas';
 import { useQuery } from '@tanstack/react-query';
 
@@ -23,6 +23,7 @@ export function useWodGroupedByDate() {
     queryKey: ['wod', 'rss', 'grouped-by-date'],
     queryFn: async () => {
       const rss = await fetchWodRss();
+      const thumbnails = await fetchWodThumbnailFromFallbackHtml();
       const entries = rss.flatMap(expandWodEntriesFromRss);
       // 날짜 desc 정렬 후 그룹핑
       const sorted = entries.sort((a, b) =>
@@ -32,7 +33,7 @@ export function useWodGroupedByDate() {
       for (const e of sorted) {
         const g = map.get(e.dateLabel) ?? {
           dateLabel: e.dateLabel,
-          imageUrl: e.imageUrl,
+          imageUrl: thumbnails[e.link ?? ''],
           entries: [],
         };
         // 그룹 이미지가 없고 엔트리에 있으면 채움
@@ -41,6 +42,7 @@ export function useWodGroupedByDate() {
         map.set(e.dateLabel, g);
       }
       const groups = Array.from(map.values());
+
       return { groups };
     },
   });

@@ -38,12 +38,13 @@ export function expandWodEntriesFromRss(item: RssItem): WodEntry[] {
   const dateLabel = dateLabelMatch ? dateLabelMatch[1] : title;
 
   // 지점 블록 추출: "[ 압구정 ] ... (다음 [ ... ] 전까지)"
-  const blocks: Array<{ branch: string; text: string }> = [];
+  const blocks: { branch: string; text: string }[] = [];
   const regex = /\[\s*([^\]]+?)\s*\][\t ]*\n?([\s\S]*?)(?=\n\s*\[|$)/g;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(content)) !== null) {
     const branch = m[1];
     const text = m[2].trim();
+
     if (branch && text) blocks.push({ branch, text });
   }
 
@@ -60,6 +61,7 @@ export function expandWodEntriesFromRss(item: RssItem): WodEntry[] {
       branch: '기타',
       lines,
       imageUrl: item.imageUrl,
+      link: item.link,
     };
     return [wodEntrySchema.parse(entry)];
   }
@@ -77,6 +79,7 @@ export function expandWodEntriesFromRss(item: RssItem): WodEntry[] {
       branch,
       lines,
       imageUrl: item.imageUrl,
+      link: item.link,
     };
     return wodEntrySchema.parse(entry);
   });

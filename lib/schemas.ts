@@ -28,6 +28,7 @@ export const wodEntrySchema = z.object({
   branch: wodBranchSchema,
   lines: z.array(z.string()),
   imageUrl: z.string().url().optional(),
+  link: z.string().optional(),
 });
 
 export type WodEntry = z.infer<typeof wodEntrySchema>;
