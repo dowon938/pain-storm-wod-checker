@@ -34,6 +34,7 @@ export const wodEntrySchema = z.object({
 export type WodEntry = z.infer<typeof wodEntrySchema>;
 
 export type WodDateGroup = {
+  title: string;
   dateLabel: string;
   imageUrl?: string;
   entries: WodEntry[];

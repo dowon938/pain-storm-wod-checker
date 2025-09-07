@@ -22,9 +22,7 @@ export function WodDateGroupCard({ group }: Props) {
         />
       ) : null}
       <View style={{ padding: 16, gap: 12 }}>
-        <Text style={{ fontSize: 16, fontWeight: '700' }}>
-          {group.dateLabel}
-        </Text>
+        <Text style={{ fontSize: 16, fontWeight: '700' }}>{group.title}</Text>
         <View style={{ gap: 12 }}>
           {group.entries.map((e, idx) => (
             <WodCard key={`${e.id}-${idx}`} entry={e} />

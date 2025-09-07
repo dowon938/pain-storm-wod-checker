@@ -29,16 +29,16 @@ export function WodCard({ entry }: Props) {
         }}
       >
         <Text style={{ fontSize: 16, fontWeight: '600' }}>{entry.branch}</Text>
-        <Text style={{ fontSize: 12, color: '#6b7280' }}>
+        {/* <Text style={{ fontSize: 12, color: '#6b7280' }}>
           {entry.dateLabel}
-        </Text>
+        </Text> */}
       </View>
-      <Text
+      {/* <Text
         style={{ fontSize: 14, fontWeight: '500', color: '#111827' }}
         numberOfLines={2}
       >
         {entry.title}
-      </Text>
+      </Text> */}
       <View style={{ gap: 4 }}>
         {entry.lines.map((line, idx) => (
           <Text

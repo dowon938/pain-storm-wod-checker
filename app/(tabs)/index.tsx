@@ -39,7 +39,11 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          contentContainerStyle={{ padding: 16, gap: 16 }}
+          contentContainerStyle={{
+            paddingVertical: 16,
+            paddingHorizontal: 8,
+            gap: 16,
+          }}
           data={data?.groups ?? []}
           keyExtractor={(item) => item.dateLabel}
           renderItem={({ item }) => <WodDateGroupCard group={item} />}

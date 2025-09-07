@@ -32,6 +32,7 @@ export function useWodGroupedByDate() {
       const map = new Map<string, WodDateGroup>();
       for (const e of sorted) {
         const g = map.get(e.dateLabel) ?? {
+          title: e.title,
           dateLabel: e.dateLabel,
           imageUrl: thumbnails[e.link ?? ''],
           entries: [],
