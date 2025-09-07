@@ -38,6 +38,32 @@ function coerceRssItem(raw: RawRssItem): RssItem | null {
   return parsed.data;
 }
 
+type ImageItem = {
+  [key: string]: string;
+};
+export async function fetchWodThumbnailFromFallbackHtml(): Promise<ImageItem> {
+  const res = await fetch(RSS_URL_FALLBACK);
+  const html = await res.text();
+
+  // Find anchors pointing to wod detail and capture their inner HTML
+  const anchorRegex =
+    /<a\s+href=["']([^"']*board\.php\?bo_table=wod&(?:amp;)?wr_id=\d+[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const results: ImageItem = {};
+  let m: RegExpExecArray | null;
+  while ((m = anchorRegex.exec(html)) !== null) {
+    const href = m[1];
+    const inner = m[2] ?? '';
+    const imgMatch = inner.match(/<img[^>]+src=["']([^"']+)["']/i);
+
+    const imgSrc = imgMatch?.[1];
+
+    if (!href || !imgSrc) continue;
+    results[href] = imgSrc;
+  }
+
+  return results;
+}
+
 export async function fetchWodRss(): Promise<RssItem[]> {
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -54,7 +80,7 @@ export async function fetchWodRss(): Promise<RssItem[]> {
   let json: any;
   try {
     json = parser.parse(text);
-  } catch (e) {
+  } catch {
     throw new Error('RSS 파싱 실패: 응답이 RSS 형식이 아닙니다.');
   }
 
