@@ -41,7 +41,10 @@ export function WodCard({ entry }: Props) {
       </Text>
       <View style={{ gap: 4 }}>
         {entry.lines.map((line, idx) => (
-          <Text key={idx} style={{ fontSize: 13, color: '#374151' }}>
+          <Text
+            key={`${entry.id}-${idx}`}
+            style={{ fontSize: 13, color: '#374151' }}
+          >
             {line}
           </Text>
         ))}

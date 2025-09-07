@@ -41,7 +41,9 @@ export default function HomeScreen() {
         <FlatList
           contentContainerStyle={{ padding: 16, gap: 12 }}
           data={data?.items ?? []}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => {
+            return `${item.id}+${index}`;
+          }}
           renderItem={({ item }) => <WodCard entry={item} />}
           refreshControl={
             <RefreshControl refreshing={!!isRefetching} onRefresh={refetch} />
