@@ -16,6 +16,7 @@ export const rssItemSchema = z.object({
   description: z.string().optional(),
   pubDate: z.string().optional(),
   content: z.string().optional(),
+  imageUrl: z.string().url().optional(),
 });
 
 export type RssItem = z.infer<typeof rssItemSchema>;
@@ -26,6 +27,13 @@ export const wodEntrySchema = z.object({
   title: z.string(),
   branch: wodBranchSchema,
   lines: z.array(z.string()),
+  imageUrl: z.string().url().optional(),
 });
 
 export type WodEntry = z.infer<typeof wodEntrySchema>;
+
+export type WodDateGroup = {
+  dateLabel: string;
+  imageUrl?: string;
+  entries: WodEntry[];
+};

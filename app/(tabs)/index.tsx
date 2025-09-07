@@ -1,5 +1,5 @@
-import { WodCard } from '@/components/wod/WodCard';
-import { useWodList } from '@/hooks/useWod';
+import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
+import { useWodGroupedByDate } from '@/hooks/useWod';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -11,8 +11,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const { data, isLoading, isRefetching, refetch, error } = useWodList();
-
+  const { data, isLoading, isRefetching, refetch, error } =
+    useWodGroupedByDate();
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {isLoading ? (
@@ -39,12 +39,10 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          contentContainerStyle={{ padding: 16, gap: 12 }}
-          data={data?.items ?? []}
-          keyExtractor={(item, index) => {
-            return `${item.id}+${index}`;
-          }}
-          renderItem={({ item }) => <WodCard entry={item} />}
+          contentContainerStyle={{ padding: 16, gap: 16 }}
+          data={data?.groups ?? []}
+          keyExtractor={(item) => item.dateLabel}
+          renderItem={({ item }) => <WodDateGroupCard group={item} />}
           refreshControl={
             <RefreshControl refreshing={!!isRefetching} onRefresh={refetch} />
           }

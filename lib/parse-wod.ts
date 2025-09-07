@@ -59,6 +59,7 @@ export function expandWodEntriesFromRss(item: RssItem): WodEntry[] {
       title,
       branch: '기타',
       lines,
+      imageUrl: item.imageUrl,
     };
     return [wodEntrySchema.parse(entry)];
   }
@@ -75,6 +76,7 @@ export function expandWodEntriesFromRss(item: RssItem): WodEntry[] {
       title,
       branch,
       lines,
+      imageUrl: item.imageUrl,
     };
     return wodEntrySchema.parse(entry);
   });

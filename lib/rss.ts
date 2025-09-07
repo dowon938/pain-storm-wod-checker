@@ -6,6 +6,12 @@ const RSS_URL_FALLBACK = 'http://painstorm.co.kr/bbs/board.php?bo_table=wod';
 
 type RawRssItem = Record<string, unknown>;
 
+function extractFirstImage(src?: string): string | undefined {
+  if (!src) return undefined;
+  const img = src.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return img?.[1];
+}
+
 function coerceRssItem(raw: RawRssItem): RssItem | null {
   const title = typeof raw['title'] === 'string' ? raw['title'] : '';
   const link = typeof raw['link'] === 'string' ? raw['link'] : undefined;
@@ -17,6 +23,7 @@ function coerceRssItem(raw: RawRssItem): RssItem | null {
     typeof raw['content:encoded'] === 'string'
       ? raw['content:encoded']
       : undefined;
+  const imageUrl = extractFirstImage(contentEncoded ?? description);
 
   const parsed = rssItemSchema.safeParse({
     title,
@@ -24,6 +31,7 @@ function coerceRssItem(raw: RawRssItem): RssItem | null {
     description,
     pubDate,
     content: contentEncoded ?? description,
+    imageUrl,
   });
 
   if (!parsed.success) return null;
