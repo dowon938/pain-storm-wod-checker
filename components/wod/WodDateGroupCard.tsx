@@ -1,37 +1,43 @@
+import { ImageItem } from '@/lib/rss';
 import { type WodDateGroup } from '@/lib/schemas';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { WodCard } from './WodCard';
 
 type Props = {
   group: WodDateGroup;
+  thumbnails: ImageItem | undefined;
 };
 
-export function WodDateGroupCard({ group }: Props) {
+const AnimatedImage = Animated.createAnimatedComponent(Image);
+
+export function WodDateGroupCard({ group, thumbnails }: Props) {
+  const imageUrl = thumbnails?.[group.entries?.[0]?.link ?? ''];
   return (
     <TouchableOpacity
-      activeOpacity={0.9}
+      activeOpacity={1}
       style={{ backgroundColor: 'white', borderRadius: 8, overflow: 'hidden' }}
       onPress={() => {
-        router.push(
-          `stack-webview?detailId=${group?.entries?.[0]?.link?.split(';')[1]}`
-        );
+        // router.push(
+        //   `stack-webview?detailId=${group?.entries?.[0]?.link?.split(';')[1]}`
+        // );
         // router.push(`/wod/${group.dateLabel}`);
       }}
     >
       <View style={{ flex: 1 }}>
-        <View
+        <Animated.View
           style={{
             width: '100%',
-            height: group.imageUrl ? 200 : 44,
+            height: imageUrl ? 200 : 44,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
-          {group.imageUrl ? (
-            <Image
-              source={{ uri: group.imageUrl }}
+          {imageUrl ? (
+            <AnimatedImage
+              entering={FadeIn}
+              source={{ uri: imageUrl }}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -60,7 +66,7 @@ export function WodDateGroupCard({ group }: Props) {
           >
             {group.title}
           </Text>
-        </View>
+        </Animated.View>
         <View style={{ padding: 12 }}>
           <View style={{ gap: 8 }}>
             {group.entries.map((e, idx) => (

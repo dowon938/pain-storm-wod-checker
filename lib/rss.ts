@@ -38,7 +38,7 @@ function coerceRssItem(raw: RawRssItem): RssItem | null {
   return parsed.data;
 }
 
-type ImageItem = {
+export type ImageItem = {
   [key: string]: string;
 };
 export async function fetchWodThumbnailFromFallbackHtml(): Promise<ImageItem> {
