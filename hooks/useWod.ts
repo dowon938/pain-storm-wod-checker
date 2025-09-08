@@ -24,11 +24,12 @@ export function useWodGroupedByDate() {
     queryFn: async () => {
       const rss = await fetchWodRss();
       const thumbnails = await fetchWodThumbnailFromFallbackHtml();
-      const entries = rss.flatMap(expandWodEntriesFromRss);
+
+      const sorted = rss.flatMap(expandWodEntriesFromRss);
       // 날짜 desc 정렬 후 그룹핑
-      const sorted = entries.sort((a, b) =>
-        a.dateLabel < b.dateLabel ? 1 : -1
-      );
+      // const sorted = entries.sort((a, b) =>
+      //   a.dateLabel < b.dateLabel ? 1 : -1
+      // );
       const map = new Map<string, WodDateGroup>();
       for (const e of sorted) {
         const g = map.get(e.dateLabel) ?? {
