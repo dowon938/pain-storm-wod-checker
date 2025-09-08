@@ -1,5 +1,6 @@
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWodGroupedByDate } from '@/hooks/useWod';
+import { Image } from 'expo-image';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -8,13 +9,28 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
+const LogoMultiplier = 0.7;
 
 export default function HomeScreen() {
+  const { top } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } =
     useWodGroupedByDate();
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+      <View style={{ padding: 12, paddingTop: top }}>
+        <Image
+          source={{ uri: 'http://painstorm.co.kr/theme/basic/img/logo.png' }}
+          style={{ width: 208 * LogoMultiplier, height: 25 * LogoMultiplier }}
+          contentFit='cover'
+          transition={150}
+        />
+      </View>
       {isLoading ? (
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
@@ -40,8 +56,8 @@ export default function HomeScreen() {
       ) : (
         <FlatList
           contentContainerStyle={{
-            paddingVertical: 16,
-            paddingHorizontal: 8,
+            paddingVertical: 12,
+            paddingHorizontal: 0,
             gap: 16,
           }}
           data={data?.groups ?? []}
