@@ -92,7 +92,7 @@ export const usePushNotifications = (): PushNotificationState => {
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
-      token && setExpoPushToken(token);
+      token?.startsWith('ExponentPushToken[') && setExpoPushToken(token);
     });
 
     // notificationListener.current =
@@ -160,9 +160,9 @@ export const usePushNotifications = (): PushNotificationState => {
             body: JSON.stringify({ expoToken: expoPushToken }), // 또는 userId 생기면 실제 값
           }
         );
-        console.log(res);
+        console.log(expoPushToken);
         // const data = await res.json();
-        // console.log(data.error.fieldErrors);
+        // console.log(data);
       } catch (error) {
         console.log('send token error', error);
       }
