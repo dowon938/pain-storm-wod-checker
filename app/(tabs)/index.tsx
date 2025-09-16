@@ -14,7 +14,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-const LogoMultiplier = 0.7;
+const LogoMultiplier = 0.8;
 
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
@@ -24,7 +24,7 @@ export default function HomeScreen() {
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
       <View style={{ padding: 12, paddingTop: top }}>
         <Image
-          source={{ uri: 'http://painstorm.co.kr/theme/basic/img/logo.png' }}
+          source={require('@/assets/images/header-logo.png')}
           style={{ width: 208 * LogoMultiplier, height: 25 * LogoMultiplier }}
           contentFit='cover'
           transition={150}
@@ -55,8 +55,8 @@ export default function HomeScreen() {
       ) : (
         <FlatList
           contentContainerStyle={{
-            paddingVertical: 12,
-            paddingHorizontal: 0,
+            // paddingVertical: 12,
+            // paddingHorizontal: 0,
             gap: 16,
           }}
           data={data?.wodItems || []}
