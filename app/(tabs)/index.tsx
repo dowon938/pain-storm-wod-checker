@@ -1,5 +1,5 @@
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
-import { useWodGroupedByDate, useWodThumbnails } from '@/hooks/useWod';
+import { useWods } from '@/hooks/useWod';
 import { Image } from 'expo-image';
 import React from 'react';
 import {
@@ -18,9 +18,7 @@ const LogoMultiplier = 0.7;
 
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
-  const { data, isLoading, isRefetching, refetch, error } =
-    useWodGroupedByDate();
-  const { data: thumbnails } = useWodThumbnails();
+  const { data, isLoading, isRefetching, refetch, error } = useWods();
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
@@ -61,14 +59,9 @@ export default function HomeScreen() {
             paddingHorizontal: 0,
             gap: 16,
           }}
-          data={data?.groups ?? []}
-          keyExtractor={(item) => item.dateLabel}
-          renderItem={({ item }) => (
-            <WodDateGroupCard
-              group={item}
-              thumbnails={thumbnails?.thumbnails}
-            />
-          )}
+          data={data?.wodItems || []}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <WodDateGroupCard wodItem={item} />}
           refreshControl={
             <RefreshControl refreshing={!!isRefetching} onRefresh={refetch} />
           }

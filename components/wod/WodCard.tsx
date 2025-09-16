@@ -1,12 +1,12 @@
-import { type WodEntry } from '@/lib/schemas';
+import { Wod } from '@/lib/schemas';
 import React from 'react';
 import { Text, View } from 'react-native';
 
 type Props = {
-  entry: WodEntry;
+  wod: Wod;
 };
 
-export function WodCard({ entry }: Props) {
+export function WodCard({ wod }: Props) {
   return (
     <View
       style={{
@@ -28,7 +28,7 @@ export function WodCard({ entry }: Props) {
           alignItems: 'baseline',
         }}
       >
-        <Text style={{ fontSize: 16, fontWeight: '600' }}>{entry.branch}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '600' }}>{wod.name}</Text>
         {/* <Text style={{ fontSize: 12, color: '#6b7280' }}>
           {entry.dateLabel}
         </Text> */}
@@ -40,9 +40,9 @@ export function WodCard({ entry }: Props) {
         {entry.title}
       </Text> */}
       <View style={{ gap: 4 }}>
-        {entry.lines.map((line, idx) => (
+        {wod.lines.map((line, idx) => (
           <Text
-            key={`${entry.id}-${idx}`}
+            key={`${wod.name}-${idx}`}
             style={{ fontSize: 13, color: '#374151' }}
           >
             {line}

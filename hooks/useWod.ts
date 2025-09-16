@@ -4,7 +4,7 @@ import {
   fetchWodThumbnailFromFallbackHtml,
   type ImageItem,
 } from '@/lib/rss';
-import { type WodDateGroup, type WodEntry } from '@/lib/schemas';
+import { WodItem, type WodDateGroup, type WodEntry } from '@/lib/schemas';
 import { useQuery } from '@tanstack/react-query';
 
 export function useWodList() {
@@ -59,6 +59,24 @@ export function useWodThumbnails() {
     queryFn: async () => {
       const thumbnails = await fetchWodThumbnailFromFallbackHtml();
       return { thumbnails };
+    },
+  });
+}
+
+export function useWods() {
+  return useQuery<{ wodItems: WodItem[] }, Error>({
+    queryKey: ['wod', 'rss', 'grouped-by-date'],
+    queryFn: async () => {
+      const res = await fetch(
+        'https://painstorm-push-noti.dowon938.workers.dev/wod.json',
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      const json = await res.json();
+
+      return { wodItems: json?.items ?? [] };
     },
   });
 }

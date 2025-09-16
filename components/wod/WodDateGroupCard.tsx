@@ -1,5 +1,4 @@
-import { ImageItem } from '@/lib/rss';
-import { type WodDateGroup } from '@/lib/schemas';
+import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -7,14 +6,12 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { WodCard } from './WodCard';
 
 type Props = {
-  group: WodDateGroup;
-  thumbnails: ImageItem | undefined;
+  wodItem: WodItem;
 };
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
-export function WodDateGroupCard({ group, thumbnails }: Props) {
-  const imageUrl = thumbnails?.[group.entries?.[0]?.link ?? ''];
+export function WodDateGroupCard({ wodItem }: Props) {
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -30,14 +27,14 @@ export function WodDateGroupCard({ group, thumbnails }: Props) {
         <Animated.View
           style={{
             width: '100%',
-            height: imageUrl ? 200 : 44,
+            height: wodItem.imageUrl ? 200 : 44,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
-          {imageUrl ? (
+          {wodItem.imageUrl ? (
             <AnimatedImage
               entering={FadeIn}
-              source={{ uri: imageUrl }}
+              source={{ uri: wodItem.imageUrl }}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -64,13 +61,13 @@ export function WodDateGroupCard({ group, thumbnails }: Props) {
               textShadowRadius: 2,
             }}
           >
-            {group.title}
+            {wodItem.title}
           </Text>
         </Animated.View>
         <View style={{ padding: 12 }}>
           <View style={{ gap: 8 }}>
-            {group.entries.map((e, idx) => (
-              <WodCard key={`${e.id}-${idx}`} entry={e} />
+            {wodItem.wods.map((e, idx) => (
+              <WodCard key={`${e.name}-${idx}`} wod={e} />
             ))}
           </View>
         </View>

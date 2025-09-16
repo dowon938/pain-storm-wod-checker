@@ -9,24 +9,24 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		41B24877D26513C7E579D7F6 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A2A0C52231F247F6149121 /* ExpoModulesProvider.swift */; };
-		8D4C45F6F0538E351F132AC3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A7AC1FBFF58538C82CE67729 /* PrivacyInfo.xcprivacy */; };
+		478CEB4A289BFE1AE573AD49 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2178D8AAD4A729B9B8DEAC /* ExpoModulesProvider.swift */; };
+		74B52A3AE85246CC962189CC /* libPods-painstormwodchecker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B52B27D9A3EE2FB1FC4732E3 /* libPods-painstormwodchecker.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		F0910074652F22B1029CD9FD /* libPods-painstormwodchecker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A21185075FA6C71BD855BF4A /* libPods-painstormwodchecker.a */; };
+		EB893E377F3AFED9D49BFF7A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6E4C885338E285AF73FE420F /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		09A2A0C52231F247F6149121 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-painstormwodchecker/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		13A64C715CF324210C311EF0 /* Pods-painstormwodchecker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-painstormwodchecker.debug.xcconfig"; path = "Target Support Files/Pods-painstormwodchecker/Pods-painstormwodchecker.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* painstormwodchecker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = painstormwodchecker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = painstormwodchecker/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = painstormwodchecker/Info.plist; sourceTree = "<group>"; };
-		A21185075FA6C71BD855BF4A /* libPods-painstormwodchecker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-painstormwodchecker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A7AC1FBFF58538C82CE67729 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = painstormwodchecker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4E2178D8AAD4A729B9B8DEAC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-painstormwodchecker/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		5DD01706609F587B6B87BB9F /* Pods-painstormwodchecker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-painstormwodchecker.debug.xcconfig"; path = "Target Support Files/Pods-painstormwodchecker/Pods-painstormwodchecker.debug.xcconfig"; sourceTree = "<group>"; };
+		6E4C885338E285AF73FE420F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = painstormwodchecker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		9C5D4A73896C7CDC54976140 /* Pods-painstormwodchecker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-painstormwodchecker.release.xcconfig"; path = "Target Support Files/Pods-painstormwodchecker/Pods-painstormwodchecker.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = painstormwodchecker/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B52B27D9A3EE2FB1FC4732E3 /* libPods-painstormwodchecker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-painstormwodchecker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C629C40E54AE48138B26B7E7 /* Pods-painstormwodchecker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-painstormwodchecker.release.xcconfig"; path = "Target Support Files/Pods-painstormwodchecker/Pods-painstormwodchecker.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = painstormwodchecker/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* painstormwodchecker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "painstormwodchecker-Bridging-Header.h"; path = "painstormwodchecker/painstormwodchecker-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0910074652F22B1029CD9FD /* libPods-painstormwodchecker.a in Frameworks */,
+				74B52A3AE85246CC962189CC /* libPods-painstormwodchecker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,26 +53,36 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A7AC1FBFF58538C82CE67729 /* PrivacyInfo.xcprivacy */,
+				6E4C885338E285AF73FE420F /* PrivacyInfo.xcprivacy */,
 			);
 			name = painstormwodchecker;
-			sourceTree = "<group>";
-		};
-		175DA1A2ECF1E85960C004D5 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				EADD72E0434E8EB413CD85D5 /* painstormwodchecker */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				A21185075FA6C71BD855BF4A /* libPods-painstormwodchecker.a */,
+				B52B27D9A3EE2FB1FC4732E3 /* libPods-painstormwodchecker.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2EED48A22C36E52535C8A7BE /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				970CE1692E8E11FC641EE27A /* painstormwodchecker */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		46818D2DC23A493365D8CCA5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5DD01706609F587B6B87BB9F /* Pods-painstormwodchecker.debug.xcconfig */,
+				9C5D4A73896C7CDC54976140 /* Pods-painstormwodchecker.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +99,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				C520037A12C3EF62883B6706 /* Pods */,
-				175DA1A2ECF1E85960C004D5 /* ExpoModulesProviders */,
+				46818D2DC23A493365D8CCA5 /* Pods */,
+				2EED48A22C36E52535C8A7BE /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,6 +115,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		970CE1692E8E11FC641EE27A /* painstormwodchecker */ = {
+			isa = PBXGroup;
+			children = (
+				4E2178D8AAD4A729B9B8DEAC /* ExpoModulesProvider.swift */,
+			);
+			name = painstormwodchecker;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -112,24 +130,6 @@
 			);
 			name = Supporting;
 			path = painstormwodchecker/Supporting;
-			sourceTree = "<group>";
-		};
-		C520037A12C3EF62883B6706 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				13A64C715CF324210C311EF0 /* Pods-painstormwodchecker.debug.xcconfig */,
-				C629C40E54AE48138B26B7E7 /* Pods-painstormwodchecker.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		EADD72E0434E8EB413CD85D5 /* painstormwodchecker */ = {
-			isa = PBXGroup;
-			children = (
-				09A2A0C52231F247F6149121 /* ExpoModulesProvider.swift */,
-			);
-			name = painstormwodchecker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "painstormwodchecker" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				B096DE1B029D055924382A4B /* [Expo] Configure project */,
+				F097AF0FD70ADF7328D52B1C /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				E1A0DEE86754B91B01855235 /* [CP] Embed Pods Frameworks */,
+				F3D2E88992F1006F172760E7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -167,8 +167,6 @@
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
-						DevelopmentTeam = "3KRU4KNBMV";
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -198,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				8D4C45F6F0538E351F132AC3 /* PrivacyInfo.xcprivacy in Resources */,
+				EB893E377F3AFED9D49BFF7A /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,7 +282,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-painstormwodchecker/Pods-painstormwodchecker-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B096DE1B029D055924382A4B /* [Expo] Configure project */ = {
+		F097AF0FD70ADF7328D52B1C /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -303,7 +301,7 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-painstormwodchecker/expo-configure-project.sh\"\n";
 		};
-		E1A0DEE86754B91B01855235 /* [CP] Embed Pods Frameworks */ = {
+		F3D2E88992F1006F172760E7 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -329,7 +327,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				41B24877D26513C7E579D7F6 /* ExpoModulesProvider.swift in Sources */,
+				478CEB4A289BFE1AE573AD49 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,12 +336,13 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 13A64C715CF324210C311EF0 /* Pods-painstormwodchecker.debug.xcconfig */;
+			baseConfigurationReference = 5DD01706609F587B6B87BB9F /* Pods-painstormwodchecker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = painstormwodchecker/painstormwodchecker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3KRU4KNBMV;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -363,26 +362,24 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = io.dowoniandev.painstormwodchecker;
-				PRODUCT_NAME = "painstormwodchecker";
+				PRODUCT_NAME = painstormwodchecker;
 				SWIFT_OBJC_BRIDGING_HEADER = "painstormwodchecker/painstormwodchecker-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-				DEVELOPMENT_TEAM = 3KRU4KNBMV;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 			};
 			name = Debug;
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C629C40E54AE48138B26B7E7 /* Pods-painstormwodchecker.release.xcconfig */;
+			baseConfigurationReference = 9C5D4A73896C7CDC54976140 /* Pods-painstormwodchecker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = painstormwodchecker/painstormwodchecker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3KRU4KNBMV;
 				INFOPLIST_FILE = painstormwodchecker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -397,14 +394,11 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = io.dowoniandev.painstormwodchecker;
-				PRODUCT_NAME = "painstormwodchecker";
+				PRODUCT_NAME = painstormwodchecker;
 				SWIFT_OBJC_BRIDGING_HEADER = "painstormwodchecker/painstormwodchecker-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-				DEVELOPMENT_TEAM = 3KRU4KNBMV;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 			};
 			name = Release;
 		};

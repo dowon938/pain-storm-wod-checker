@@ -39,3 +39,16 @@ export type WodDateGroup = {
   imageUrl?: string;
   entries: WodEntry[];
 };
+
+export type Wod = {
+  name: string;
+  lines: string[];
+};
+
+export type WodItem = {
+  id: string;
+  title: string;
+  link: string;
+  wods: Wod[];
+  imageUrl: string;
+};
