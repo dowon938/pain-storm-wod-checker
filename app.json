@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "pain-storm-wod-checker",
-    "slug": "pain-storm-wod-checker",
+    "name": "painstorm-wod-checker",
+    "slug": "painstorm-wod-checker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,14 +9,20 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "io.dowoniandev.painstormwodchecker",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "io.dowoniandev.painstormwodchecker",
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +43,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3b2373cd-40bd-4552-8539-567462a38a66"
+      },
+      "router": {}
+    },
+    "owner": "ssengdo"
   }
 }

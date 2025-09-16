@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const { data: thumbnails } = useWodThumbnails();
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+    <SafeAreaView style={{ flex: 1 }} edges={[]}>
       <View style={{ padding: 12, paddingTop: top }}>
         <Image
           source={{ uri: 'http://painstorm.co.kr/theme/basic/img/logo.png' }}
