@@ -14,21 +14,14 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "appleTeamId": "3KRU4KNBMV",
-      "infoPlist": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true,
-          "NSAllowsLocalNetworking": true
-        }
-      }
+      "appleTeamId": "3KRU4KNBMV"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "usesCleartextTraffic": true,
       "package": "io.dowoniandev.painstormwodchecker",
       "versionCode": 2,
       "googleServicesFile": "./google-services-android.json"
@@ -46,7 +39,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ],
       "expo-notifications"
