@@ -1,7 +1,14 @@
 import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
+import {
+  Image as RNImage,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { WodCard } from './WodCard';
 
@@ -12,6 +19,21 @@ type Props = {
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 export function WodDateGroupCard({ wodItem }: Props) {
+  const [imageRatio, setImageRatio] = React.useState(0);
+  const { width } = useWindowDimensions();
+  React.useEffect(() => {
+    if (!wodItem.imageUrl) return;
+    RNImage.getSize(
+      wodItem.imageUrl,
+      (width, height) => {
+        setImageRatio(width / height);
+      },
+      (error) => {
+        console.error('이미지 로드 실패:', error);
+      }
+    );
+  }, [wodItem.imageUrl]);
+
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -24,29 +46,42 @@ export function WodDateGroupCard({ wodItem }: Props) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Animated.View
+        <View
           style={{
             width: '100%',
-            height: wodItem.imageUrl ? 200 : 44,
+            height: imageRatio ? width / imageRatio - 20 : 44,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
-          {wodItem.imageUrl ? (
-            <AnimatedImage
-              entering={FadeIn}
-              source={{ uri: wodItem.imageUrl }}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: '#f3f4f6',
-              }}
-              contentFit='cover'
-              transition={150}
-            />
-          ) : null}
+          <AnimatedImage
+            entering={FadeIn}
+            source={{ uri: wodItem.imageUrl }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#f3f4f6',
+            }}
+            contentFit='cover'
+            transition={150}
+          />
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: '900',
+              position: 'absolute',
+              bottom: 8,
+              right: 16,
+              color: 'rgba(255, 255, 255, 1)',
+              textShadowColor: 'rgba(0, 0, 0, 0.4)',
+              textShadowOffset: { width: 0, height: 1 },
+              textShadowRadius: 2,
+            }}
+          >
+            {wodItem.wods[0].name}
+          </Text>
           <Text
             style={{
               fontSize: 24,
@@ -63,7 +98,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
           >
             {wodItem.title}
           </Text>
-        </Animated.View>
+        </View>
         <View style={{ padding: 12 }}>
           <View style={{ gap: 8 }}>
             {wodItem.wods.map((e, idx) => (
