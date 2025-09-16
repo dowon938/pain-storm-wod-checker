@@ -13,7 +13,8 @@
       "bundleIdentifier": "io.dowoniandev.painstormwodchecker",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "appleTeamId": "3KRU4KNBMV"
     },
     "android": {
       "adaptiveIcon": {
