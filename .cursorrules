@@ -1,0 +1,10 @@
+// Cursor Workspace Rules
+
+// Expo / React Native config policy
+
+- For Expo React Native projects, prefer configuring native settings in `app.json` (or `app.config.*`).
+- Avoid direct edits to `android/` and `ios/` when possible; changes should be represented in Expo config so `npx expo prebuild` re-generates native files consistently.
+- When enabling HTTP:
+  - Android: set `expo.android.usesCleartextTraffic = true`.
+  - iOS: set `expo.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads = true` (or use domain-specific `NSExceptionDomains` for production).
+- If a native file must be edited, mirror the setting in `app.json` so it persists across prebuilds.

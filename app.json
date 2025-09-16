@@ -14,7 +14,13 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "appleTeamId": "3KRU4KNBMV"
+      "appleTeamId": "3KRU4KNBMV",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSAllowsLocalNetworking": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,6 +28,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "usesCleartextTraffic": true,
       "package": "io.dowoniandev.painstormwodchecker",
       "versionCode": 2,
       "googleServicesFile": "./google-services-android.json"
