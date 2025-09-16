@@ -22,7 +22,8 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "io.dowoniandev.painstormwodchecker",
-      "versionCode": 2
+      "versionCode": 2,
+      "googleServicesFile": "./google-services-android.json"
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +40,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
