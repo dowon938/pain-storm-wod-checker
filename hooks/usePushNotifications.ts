@@ -1,10 +1,13 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Constants from 'expo-constants';
 
+import { readGlobalRefetchWods } from '@/app/(tabs)';
+import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
+import { useIsNavigationReady } from './useNavigationReady';
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken['data'];
@@ -29,12 +32,12 @@ export const usePushNotifications = (): PushNotificationState => {
     Notifications.ExpoPushToken['data'] | undefined
   >();
 
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >();
+  // const [notification, setNotification] = useState<
+  //   Notifications.Notification | undefined
+  // >();
 
-  // const notificationListener = useRef<Notifications.Subscription>();
-  // const responseListener = useRef<Notifications.Subscription>();
+  const notificationListener = useRef<Notifications.EventSubscription>(null);
+  const responseListener = useRef<Notifications.EventSubscription>(null);
 
   async function registerForPushNotificationsAsync() {
     let token;
@@ -88,65 +91,69 @@ export const usePushNotifications = (): PushNotificationState => {
     return token;
   }
 
-  // const router = useRouter();
+  const router = useRouter();
+
+  const handleNotificationResponse = useCallback(
+    (response: Notifications.NotificationResponse) => {
+      console.log(
+        'NotificationResponsePath=>',
+        response?.notification?.request?.content?.data?.path
+      );
+      switch (response?.notification?.request?.content?.data?.path) {
+        case '/wods':
+          router.navigate('/(tabs)');
+          setTimeout(() => readGlobalRefetchWods()?.(), 300);
+          break;
+        case '/explore':
+          router.navigate('/(tabs)/explore');
+          break;
+        default:
+          router.navigate('/(tabs)');
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
       token?.startsWith('ExponentPushToken[') && setExpoPushToken(token);
     });
+    // 푸시가 왔을떄
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        // console.log('notification', notification);
+        // setNotification(notification);
+        setTimeout(() => readGlobalRefetchWods()?.(), 300);
+      });
+    // 푸시가 클릭됐을떄
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        handleNotificationResponse(response);
+      });
 
-    // notificationListener.current =
-    //   Notifications.addNotificationReceivedListener((notification) => {
-    //     console.log('notification', notification);
-    //     setNotification(notification);
-    //   });
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current!
+      );
 
-    // responseListener.current =
-    //   Notifications.addNotificationResponseReceivedListener((response) => {
-    //     console.log(
-    //       'response',
-    //       response?.notification.request.content.data.url
-    //     );
-    //     if (response?.notification.request.content.data.url) {
-    //       router.push(
-    //         //@ts-ignore
-    //         `stack-webview?url=${response?.notification.request.content.data.url}`
-    //       );
-    //     }
-    //   });
+      Notifications.removeNotificationSubscription(responseListener.current!);
+    };
+  }, [handleNotificationResponse]);
 
-    // return () => {
-    //   Notifications.removeNotificationSubscription(
-    //     notificationListener.current!
-    //   );
+  const isNavigationReady = useIsNavigationReady();
 
-    //   Notifications.removeNotificationSubscription(responseListener.current!);
-    // };
-  }, []);
-
-  // const isNavigationReady = useIsNavigationReady();
-
-  // useEffect(() => {
-  //   if (isNavigationReady) {
-  //     console.log('isNavigationReady', isNavigationReady);
-  //     Notifications.getLastNotificationResponseAsync().then((response) => {
-  //       // console.log(
-  //       //   'LastNotiResponse',
-  //       //   response?.notification.request.content.data.url
-  //       // );
-  //       if (!response?.notification) {
-  //         return;
-  //       }
-  //       if (router.canGoBack()) return;
-  //       if (response?.notification.request.content.data.url) {
-  //         router.push(
-  //           //@ts-ignore
-  //           `stack-webview?url=${response?.notification.request.content.data.url}`
-  //         );
-  //       }
-  //     });
-  //   }
-  // }, [isNavigationReady, router]);
+  // 푸시로 앱오픈시 처리
+  useEffect(() => {
+    if (isNavigationReady) {
+      Notifications.getLastNotificationResponseAsync().then((response) => {
+        if (!response?.notification) {
+          return;
+        }
+        if (router.canGoBack()) return;
+        handleNotificationResponse(response);
+      });
+    }
+  }, [isNavigationReady, handleNotificationResponse, router]);
 
   useEffect(() => {
     if (!expoPushToken) return;
@@ -172,6 +179,6 @@ export const usePushNotifications = (): PushNotificationState => {
 
   return {
     expoPushToken: expoPushToken,
-    notification,
+    // notification,
   };
 };

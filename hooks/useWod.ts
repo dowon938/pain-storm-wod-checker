@@ -65,7 +65,7 @@ export function useWodThumbnails() {
 
 export function useWods() {
   return useQuery<{ wodItems: WodItem[] }, Error>({
-    queryKey: ['wod', 'rss', 'grouped-by-date'],
+    queryKey: ['wods'],
     queryFn: async () => {
       const res = await fetch(
         'https://painstorm-push-noti.dowon938.workers.dev/wod.json',

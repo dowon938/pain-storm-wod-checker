@@ -1,7 +1,8 @@
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
+import { createStore } from '@/lib/create-auto-store';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,9 +17,21 @@ import {
 
 const LogoMultiplier = 0.8;
 
+export const {
+  readGlobalRefetchWods,
+  updateGlobalRefetchWods,
+  useWatchGlobalRefetchWods,
+} = createStore({
+  globalRefetchWods: () => {},
+});
+
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
+  // console.log('home', isRefetching);
+  useEffect(() => {
+    updateGlobalRefetchWods(refetch);
+  }, [refetch]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
