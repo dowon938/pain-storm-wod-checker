@@ -5,14 +5,11 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
-import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 
 function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -59,10 +56,6 @@ export default HotUpdater.wrap({
       }}
     >
       {/* You can put a splash image here. */}
-      <Image
-        source={require('../assets/images/splash-icon.png')}
-        style={{ width: 100, height: 100 }}
-      />
       <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
         {status === 'UPDATING' ? 'Updating...' : 'Checking for Update...'}
       </Text>
