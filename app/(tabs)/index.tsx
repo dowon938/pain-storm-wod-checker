@@ -1,3 +1,6 @@
+import BranchSelector, {
+  useWatchPerferBranch,
+} from '@/components/wod/BranchSelector';
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
 import { createStore } from '@/lib/create-auto-store';
@@ -6,6 +9,7 @@ import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
   RefreshControl,
   Text,
   View,
@@ -28,6 +32,7 @@ export const {
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
+  const perferBranch = useWatchPerferBranch();
   // console.log('home', isRefetching);
   useEffect(() => {
     updateGlobalRefetchWods(refetch);
@@ -35,13 +40,23 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
-      <View style={{ padding: 12, paddingTop: top }}>
+      <View
+        style={{
+          padding: 12,
+          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 10 : 0),
+          paddingBottom: 10,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Image
           source={require('@/assets/images/header-logo-2.png')}
           style={{ width: 208 * LogoMultiplier, height: 28 * LogoMultiplier }}
           contentFit='contain'
           transition={150}
         />
+        <BranchSelector />
       </View>
       {isLoading ? (
         <View
