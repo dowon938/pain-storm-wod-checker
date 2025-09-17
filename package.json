@@ -12,11 +12,15 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@hot-updater/cloudflare": "0.20.11",
+    "@hot-updater/expo": "0.20.11",
+    "@hot-updater/react-native": "0.20.11",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
     "@tanstack/react-query": "^5.87.1",
+    "dotenv": "^17.2.2",
     "expo": "^53.0.22",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.7",
@@ -42,15 +46,17 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
+    "wrangler": "^4.37.1",
     "zod": "^4.1.5",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
-    "typescript": "~5.8.3",
     "eslint": "^9.25.0",
-    "eslint-config-expo": "~9.2.0"
+    "eslint-config-expo": "~9.2.0",
+    "hot-updater": "^0.20.11",
+    "typescript": "~5.8.3"
   },
   "private": true
 }
