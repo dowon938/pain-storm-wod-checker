@@ -3,7 +3,10 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import React from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { MMKV } from 'react-native-mmkv';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+const storage = new MMKV();
+const PREF_PERFER_BRANCH = 'perferBranch';
 
 enum PerferBranch {
   ALL = 'ALL',
@@ -15,7 +18,7 @@ enum PerferBranch {
 
 export const { readPerferBranch, updatePerferBranch, useWatchPerferBranch } =
   createStore({
-    perferBranch: PerferBranch.ALL,
+    perferBranch: storage.getString(PREF_PERFER_BRANCH) ?? PerferBranch.ALL,
   });
 
 const BranchSelector = () => {
@@ -64,8 +67,8 @@ const BranchSelector = () => {
           <View
             style={{
               position: 'absolute',
-              top: insets.top + 24,
-              right: 12,
+              top: insets.top + 20,
+              right: 8,
               backgroundColor: 'white',
               borderRadius: 12,
               padding: 6,
@@ -85,6 +88,7 @@ const BranchSelector = () => {
                   activeOpacity={0.7}
                   onPress={() => {
                     updatePerferBranch(opt.value);
+                    storage.set(PREF_PERFER_BRANCH, opt.value);
                     setOpen(false);
                   }}
                   style={{
