@@ -80,6 +80,16 @@ const BranchSelector = () => {
               minWidth: 112,
             }}
           >
+            <Text
+              style={{
+                color: '#6b7280',
+                fontSize: 12,
+                paddingHorizontal: 8,
+                paddingVertical: 6,
+              }}
+            >
+              선택한 지점이 먼저 표시돼요.
+            </Text>
             {options.map((opt) => {
               const selected = opt.value === perferBranch;
               return (
