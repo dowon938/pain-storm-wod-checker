@@ -12,6 +12,7 @@ import { Text, View } from 'react-native';
 function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Heavitas: require('../assets/fonts/Heavitas.ttf'),
   });
 
   usePushNotifications();
