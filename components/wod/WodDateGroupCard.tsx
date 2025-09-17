@@ -2,6 +2,7 @@ import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
 import {
   Image as RNImage,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -17,6 +18,14 @@ type Props = {
 };
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
+
+const EngNames = {
+  압구정: 'APGUJEONG.',
+  잠실: 'JAMSIL.',
+  수원: 'SUWON.',
+  아차산: 'ACHASAN.',
+  기타: 'ETC.',
+};
 
 export function WodDateGroupCard({ wodItem }: Props) {
   const [imageRatio, setImageRatio] = React.useState(0);
@@ -37,7 +46,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   return (
     <TouchableOpacity
       activeOpacity={1}
-      style={{ backgroundColor: 'white', borderRadius: 8, overflow: 'hidden' }}
+      style={{ backgroundColor: 'white', borderRadius: 16, overflow: 'hidden' }}
       onPress={() => {
         // router.push(
         //   `stack-webview?detailId=${group?.entries?.[0]?.link?.split(';')[1]}`
@@ -49,7 +58,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
         <View
           style={{
             width: '100%',
-            height: imageRatio ? width / imageRatio - 20 : 44,
+            height: imageRatio ? width / imageRatio - 20 : 68,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
@@ -68,45 +77,49 @@ export function WodDateGroupCard({ wodItem }: Props) {
             transition={150}
           />
           <Text
-            style={{
-              fontSize: 24,
-              fontWeight: '900',
-              position: 'absolute',
-              bottom: 8,
-              right: 16,
-              color: 'rgba(255, 255, 255, 1)',
-              textShadowColor: 'rgba(0, 0, 0, 0.4)',
-              textShadowOffset: { width: 0, height: 1 },
-              textShadowRadius: 2,
-            }}
+            style={[
+              styles.titleText,
+              {
+                top: 12,
+                left: 16,
+                opacity: 0.7,
+                textShadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            ]}
           >
-            {wodItem.wods[0].name}
+            {wodItem.title.replace(' ', '\n')}
           </Text>
           <Text
-            style={{
-              fontSize: 24,
-              fontWeight: '900',
-              position: 'absolute',
-              bottom: 8,
-              left: 16,
-              right: 16,
-              color: 'rgba(255, 255, 255, 1)',
-              textShadowColor: 'rgba(0, 0, 0, 0.4)',
-              textShadowOffset: { width: 0, height: 1 },
-              textShadowRadius: 2,
-            }}
+            style={[styles.titleText, { bottom: 8, right: 16, opacity: 0.4 }]}
           >
-            {wodItem.title}
+            {EngNames[wodItem.wods[0].name as keyof typeof EngNames] ??
+              wodItem.wods[0].name ??
+              ''}
           </Text>
         </View>
         <View style={{ padding: 12 }}>
           <View style={{ gap: 8 }}>
-            {wodItem.wods.map((e, idx) => (
-              <WodCard key={`${e.name}-${idx}`} wod={e} />
-            ))}
+            {wodItem.wods.map(
+              (e, idx) =>
+                idx === 0 && <WodCard key={`${e.name}-${idx}`} wod={e} />
+            )}
           </View>
         </View>
       </View>
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  titleText: {
+    fontSize: 24,
+    fontWeight: '900',
+    position: 'absolute',
+    color: 'rgba(255, 255, 255, 1)',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+    fontFamily: 'Heavitas',
+    opacity: 1,
+  },
+});

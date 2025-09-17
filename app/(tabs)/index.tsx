@@ -37,9 +37,9 @@ export default function HomeScreen() {
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
       <View style={{ padding: 12, paddingTop: top }}>
         <Image
-          source={require('@/assets/images/header-logo.png')}
-          style={{ width: 208 * LogoMultiplier, height: 25 * LogoMultiplier }}
-          contentFit='cover'
+          source={require('@/assets/images/header-logo-2.png')}
+          style={{ width: 208 * LogoMultiplier, height: 28 * LogoMultiplier }}
+          contentFit='contain'
           transition={150}
         />
       </View>
