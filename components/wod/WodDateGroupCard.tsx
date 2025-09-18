@@ -91,7 +91,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   return (
     <View
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backgroundColor: 'rgba(254, 250, 246, 0.95)',
         borderRadius: 16,
         overflow: 'hidden',
       }}
@@ -139,7 +139,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
               ''}
           </Text>
         </View>
-        <View style={{ padding: 12 }}>
+        <View style={{ padding: 12, paddingBottom: 0 }}>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {names.map((name, idx) => {
               const selected = idx === activeIndex;
