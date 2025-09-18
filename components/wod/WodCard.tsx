@@ -19,6 +19,7 @@ export function WodCard({ wod }: Props) {
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
         elevation: 2,
+        marginVertical: 12,
       }}
     >
       <View

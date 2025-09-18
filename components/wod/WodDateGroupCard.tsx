@@ -1,6 +1,7 @@
 import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
 import {
+  FlatList,
   Image as RNImage,
   StyleSheet,
   Text,
@@ -9,6 +10,8 @@ import {
   View,
 } from 'react-native';
 
+import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
+import { debounce } from 'es-toolkit/compat';
 import React from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { WodCard } from './WodCard';
@@ -30,12 +33,28 @@ const EngNames = {
 export function WodDateGroupCard({ wodItem }: Props) {
   const [imageRatio, setImageRatio] = React.useState(0);
   const { width } = useWindowDimensions();
+  const flatListRef = React.useRef<FlatList<any>>(null);
+  const perferBranch = useWatchPerferBranch();
+
+  const itemSpacing = 12;
+  const horizontalPadding = 12;
+  const cardWidth = width - horizontalPadding * 2;
+
+  const names = React.useMemo(
+    () => wodItem.wods.map((w) => w.name),
+    [wodItem.wods]
+  );
+  const initialIndex = React.useMemo(() => {
+    const idx = names.findIndex((n) => n === perferBranch);
+    return idx >= 0 ? idx : 0;
+  }, [names, perferBranch]);
+  const [activeIndex, setActiveIndex] = React.useState(initialIndex);
   React.useEffect(() => {
     if (!wodItem.imageUrl) return;
     RNImage.getSize(
       wodItem.imageUrl,
       (width, height) => {
-        setImageRatio(width / height);
+        setImageRatio(Math.max(width / height, 1.2));
       },
       (error) => {
         console.error('이미지 로드 실패:', error);
@@ -43,16 +62,35 @@ export function WodDateGroupCard({ wodItem }: Props) {
     );
   }, [wodItem.imageUrl]);
 
+  React.useEffect(() => {
+    const idx = names.findIndex((n) => n === perferBranch);
+    if (idx >= 0) {
+      setActiveIndex(idx);
+      flatListRef.current?.scrollToIndex({ index: idx, animated: true });
+    }
+  }, [perferBranch, names]);
+
+  const debouncedSetActiveIndex = debounce((idx: number) => {
+    console.log('setActiveIndex');
+    setActiveIndex(idx);
+  }, 300);
+
+  const onViewableItemsChanged = React.useRef(
+    ({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
+      const first = viewableItems.find((v) => v.index != null);
+      if (first && typeof first.index === 'number') {
+        console.log('onViewableItemsChanged', first.index);
+        debouncedSetActiveIndex(first.index);
+      }
+    }
+  ).current;
+  const viewabilityConfig = React.useRef({
+    itemVisiblePercentThreshold: 60,
+  }).current;
+
   return (
-    <TouchableOpacity
-      activeOpacity={1}
+    <View
       style={{ backgroundColor: 'white', borderRadius: 16, overflow: 'hidden' }}
-      onPress={() => {
-        // router.push(
-        //   `stack-webview?detailId=${group?.entries?.[0]?.link?.split(';')[1]}`
-        // );
-        // router.push(`/wod/${group.dateLabel}`);
-      }}
     >
       <View style={{ flex: 1 }}>
         <View
@@ -98,15 +136,86 @@ export function WodDateGroupCard({ wodItem }: Props) {
           </Text>
         </View>
         <View style={{ padding: 12 }}>
-          <View style={{ gap: 8 }}>
-            {wodItem.wods.map(
-              (e, idx) =>
-                idx === 0 && <WodCard key={`${e.name}-${idx}`} wod={e} />
-            )}
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            {names.map((name, idx) => {
+              const selected = idx === activeIndex;
+              return (
+                <TouchableOpacity
+                  key={`${name}-${idx}`}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setActiveIndex(idx);
+                    flatListRef.current?.scrollToIndex({
+                      index: idx,
+                      animated: true,
+                    });
+                  }}
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 999,
+                    backgroundColor: selected ? 'black' : 'transparent',
+                    borderWidth: selected ? 0 : 1,
+                    borderColor: 'rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: selected ? 'white' : '#111827',
+                    }}
+                  >
+                    {name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
+
+          <FlatList
+            nestedScrollEnabled
+            style={{ marginHorizontal: -12 }}
+            ref={flatListRef}
+            data={wodItem.wods}
+            keyExtractor={(item, idx) => `${item.name}-${idx}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToAlignment='start'
+            decelerationRate='fast'
+            snapToInterval={cardWidth + itemSpacing}
+            getItemLayout={(_, index) => ({
+              length: cardWidth + itemSpacing,
+              offset: (cardWidth + itemSpacing) * index,
+              index,
+            })}
+            initialScrollIndex={initialIndex}
+            onScrollToIndexFailed={(info) => {
+              setTimeout(() => {
+                flatListRef.current?.scrollToIndex({
+                  index: info.index,
+                  animated: false,
+                });
+              }, 0);
+            }}
+            contentContainerStyle={{
+              paddingLeft: horizontalPadding,
+              paddingRight: horizontalPadding,
+            }}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: itemSpacing }} />
+            )}
+            renderItem={({ item }) => (
+              <View style={{ width: cardWidth }}>
+                <WodCard wod={item} />
+              </View>
+            )}
+            viewabilityConfig={viewabilityConfig}
+            onViewableItemsChanged={onViewableItemsChanged}
+          />
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
