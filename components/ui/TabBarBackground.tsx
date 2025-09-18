@@ -5,7 +5,7 @@ import { Platform, StyleSheet } from 'react-native';
 export default function TabBarBackground() {
   if (Platform.OS === 'ios') {
     // iOS handled by .ios.tsx file via platform resolution
-    return null as unknown as JSX.Element;
+    return null as unknown as React.JSX.Element;
   }
   return (
     <BlurView tint='dark' intensity={50} style={StyleSheet.absoluteFill} />

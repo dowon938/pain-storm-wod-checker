@@ -1,9 +1,9 @@
-import { HotUpdater, getUpdateSource } from '@hot-updater/react-native';
+import { getUpdateSource, HotUpdater } from '@hot-updater/react-native';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
@@ -31,6 +31,7 @@ function RootLayout() {
         </Stack>
         <StatusBar style='light' />
       </ThemeProvider>
+      <ReducedMotionConfig mode={ReduceMotion.Never} />
     </ReactQueryProvider>
   );
 }
