@@ -71,7 +71,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   }, [perferBranch, names]);
 
   const debouncedSetActiveIndex = debounce((idx: number) => {
-    console.log('setActiveIndex');
+    // console.log('setActiveIndex');
     setActiveIndex(idx);
   }, 300);
 
@@ -79,7 +79,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
     ({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
       const first = viewableItems.find((v) => v.index != null);
       if (first && typeof first.index === 'number') {
-        console.log('onViewableItemsChanged', first.index);
+        // console.log('onViewableItemsChanged', first.index);
         debouncedSetActiveIndex(first.index);
       }
     }
