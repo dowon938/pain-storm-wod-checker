@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
   },
   indicator: {
     position: 'absolute',
@@ -230,11 +231,10 @@ const TabBarItem = React.memo(function TabBarItem({
     >
       <View
         style={{
-          width: 28,
-          height: 28,
+          width: 24,
+          height: 24,
           alignItems: 'center',
           justifyContent: 'center',
-          marginRight: 4,
         }}
       >
         {options.tabBarIcon ? (
@@ -256,10 +256,17 @@ const TabBarItem = React.memo(function TabBarItem({
           </>
         ) : null}
       </View>
-      <View>
+      <View style={{ marginLeft: label === 'LOCATION' ? -8 : -4 }}>
         <Animated.Text
           style={[
-            { fontSize: 11, fontWeight: '600', color: 'white' },
+            {
+              fontSize: 11,
+              fontWeight: '600',
+              color: 'white',
+              lineHeight: 14,
+              includeFontPadding: false as unknown as boolean,
+              textAlignVertical: 'center' as unknown as 'auto',
+            },
             focusedOpacity,
           ]}
         >
@@ -274,6 +281,9 @@ const TabBarItem = React.memo(function TabBarItem({
               position: 'absolute',
               left: 0,
               right: 0,
+              lineHeight: 14,
+              includeFontPadding: false as unknown as boolean,
+              textAlignVertical: 'center' as unknown as 'auto',
             },
             unfocusedOpacity,
           ]}

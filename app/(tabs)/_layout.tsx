@@ -49,7 +49,7 @@ export default function TabLayout() {
               name='location'
               size={20}
               color={focused ? 'white' : 'gray'}
-              style={{ marginRight: 4 }}
+              style={{ marginTop: 2 }}
             />
           ),
         }}
