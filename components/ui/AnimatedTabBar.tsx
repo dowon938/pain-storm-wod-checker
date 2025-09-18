@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
   Platform,
@@ -9,9 +9,11 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,11 +32,7 @@ export default function AnimatedTabBar({
   const tabCount = state.routes.length;
 
   const onTabPress = (index: number, routeKey: string, routeName: string) => {
-    indicatorX.value = withSpring(index, {
-      stiffness: 260,
-      damping: 20,
-      mass: 1,
-    });
+    // Do not animate here; animation is handled by state.index effect to avoid double-anim
     const event = navigation.emit({
       type: 'tabPress',
       target: routeKey,
@@ -47,12 +45,18 @@ export default function AnimatedTabBar({
 
   const containerBg = useMemo(() => 'white', []);
 
+  const didInitRef = useRef(false);
   useEffect(() => {
     // keep indicator in sync when route changes programmatically
+    if (!didInitRef.current) {
+      indicatorX.value = state.index; // set without animation on first mount
+      didInitRef.current = true;
+      return;
+    }
     indicatorX.value = withSpring(state.index, {
-      stiffness: 260,
+      stiffness: 450,
       damping: 20,
-      mass: 1,
+      mass: 0.4,
     });
   }, [indicatorX, state.index]);
 
@@ -170,7 +174,7 @@ type TabBarItemProps = {
   tabCount: number;
 };
 
-function TabBarItem({
+const TabBarItem = React.memo(function TabBarItem({
   index,
   isFocused,
   options,
@@ -182,13 +186,39 @@ function TabBarItem({
   const focusedOpacity = useAnimatedStyle(() => {
     const distance = Math.abs(indicatorX.value - index);
     const t = Math.max(0, Math.min(1, 1 - distance));
-    return { opacity: t };
+    return {
+      opacity: withTiming(t, {
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+      }),
+    };
   }, [index]);
 
   const unfocusedOpacity = useAnimatedStyle(() => {
     const distance = Math.abs(indicatorX.value - index);
     const t = Math.max(0, Math.min(1, 1 - distance));
-    return { opacity: 1 - t };
+    return {
+      opacity: withTiming(1 - t, {
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+      }),
+    };
+  }, [index]);
+
+  const focusedScale = useAnimatedStyle(() => {
+    const distance = Math.abs(indicatorX.value - index);
+    const t = Math.max(0, Math.min(1, 1 - distance));
+    const scale = 0.96 + 0.08 * t; // 0.96 -> 1.04 (덜 과격)
+    return {
+      transform: [
+        {
+          scale: withTiming(scale, {
+            duration: 180,
+            easing: Easing.out(Easing.cubic),
+          }),
+        },
+      ],
+    };
   }, [index]);
 
   return (
@@ -210,7 +240,11 @@ function TabBarItem({
         {options.tabBarIcon ? (
           <>
             <Animated.View
-              style={[StyleSheet.absoluteFillObject, focusedOpacity]}
+              style={[
+                StyleSheet.absoluteFillObject,
+                focusedOpacity,
+                focusedScale,
+              ]}
             >
               {options.tabBarIcon({ focused: true, color: 'white', size: 28 })}
             </Animated.View>
@@ -249,4 +283,4 @@ function TabBarItem({
       </View>
     </Pressable>
   );
-}
+});
