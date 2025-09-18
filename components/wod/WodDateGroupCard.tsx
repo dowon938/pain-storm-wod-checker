@@ -90,7 +90,11 @@ export function WodDateGroupCard({ wodItem }: Props) {
 
   return (
     <View
-      style={{ backgroundColor: 'white', borderRadius: 16, overflow: 'hidden' }}
+      style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: 16,
+        overflow: 'hidden',
+      }}
     >
       <View style={{ flex: 1 }}>
         <View
@@ -128,7 +132,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
             {wodItem.title.replace(' ', '\n')}
           </Text>
           <Text
-            style={[styles.titleText, { bottom: 8, right: 16, opacity: 0.4 }]}
+            style={[styles.titleText, { bottom: 8, right: 16, opacity: 0.45 }]}
           >
             {EngNames[wodItem.wods[0].name as keyof typeof EngNames] ??
               wodItem.wods[0].name ??
@@ -136,7 +140,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
           </Text>
         </View>
         <View style={{ padding: 12 }}>
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
             {names.map((name, idx) => {
               const selected = idx === activeIndex;
               return (

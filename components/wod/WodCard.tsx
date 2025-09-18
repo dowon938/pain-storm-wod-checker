@@ -14,11 +14,11 @@ export function WodCard({ wod }: Props) {
         borderRadius: 24,
         padding: 16,
         gap: 8,
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        // shadowColor: '#000',
+        // shadowOpacity: 0.12,
+        // shadowRadius: 8,
+        // shadowOffset: { width: 0, height: 2 },
+        // elevation: 2,
         marginVertical: 12,
       }}
     >
