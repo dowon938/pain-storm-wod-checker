@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 
+import ImageViewerOverlay from '@/components/ImageViewerOverlay';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
 import { Image, LogBox, Text, View } from 'react-native';
@@ -32,6 +33,7 @@ function RootLayout() {
           <Stack.Screen name='+not-found' />
         </Stack>
         <StatusBar style='light' />
+        <ImageViewerOverlay />
       </ThemeProvider>
       <ReducedMotionConfig mode={ReduceMotion.Never} />
     </ReactQueryProvider>

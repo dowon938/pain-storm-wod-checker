@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
+import { openImageViewer } from '@/hooks/useImageViewer';
 import { debounce } from 'es-toolkit/compat';
 import React from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -86,6 +87,8 @@ export function WodDateGroupCard({ wodItem }: Props) {
     itemVisiblePercentThreshold: 60,
   }).current;
 
+  const imageTouchableRef = React.useRef<View>(null);
+
   return (
     <View
       style={{
@@ -103,18 +106,43 @@ export function WodDateGroupCard({ wodItem }: Props) {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
-          <Image
-            source={{ uri: wodItem.imageUrl }}
+          <View
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: '#f3f4f6',
             }}
-            contentFit='cover'
-          />
+          >
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={{ flex: 1 }}
+              ref={imageTouchableRef}
+              onPress={(e) => {
+                if (!wodItem.imageUrl) return;
+                imageTouchableRef.current?.measureInWindow?.((x, y, w, h) => {
+                  openImageViewer({
+                    url: wodItem.imageUrl!,
+                    origin: { x, y, width: w, height: h },
+                  });
+                });
+              }}
+            >
+              <Image
+                source={{ uri: wodItem.imageUrl }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: '#f3f4f6',
+                }}
+                contentFit='cover'
+              />
+            </TouchableOpacity>
+          </View>
           <Text
             style={[
               styles.titleText,

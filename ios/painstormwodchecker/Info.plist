@@ -49,6 +49,10 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>이미지 저장을 위해 사진 보관함에 저장 권한이 필요합니다.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your photos</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
