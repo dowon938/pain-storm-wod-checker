@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
   Platform,
@@ -42,8 +42,6 @@ export default function AnimatedTabBar({
       navigation.navigate(routeName as never);
     }
   };
-
-  const containerBg = useMemo(() => 'white', []);
 
   const didInitRef = useRef(false);
   useEffect(() => {
@@ -90,15 +88,7 @@ export default function AnimatedTabBar({
           height: 70,
         }}
       />
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: containerBg,
-          },
-        ]}
-        onLayout={onLayout}
-      >
+      <View style={styles.container} onLayout={onLayout}>
         <Animated.View style={[styles.indicator, indicatorStyle]} />
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -145,6 +135,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: 'hidden',
     borderWidth: 0.5,
+    backgroundColor: 'black',
     borderColor: 'rgba(0,0,0,0.2)',
   },
   tab: {
@@ -160,7 +151,8 @@ const styles = StyleSheet.create({
     top: 6,
     bottom: 6,
     left: 6,
-    backgroundColor: 'black',
+    // backgroundColor: 'black',
+    backgroundColor: 'white',
     borderRadius: 18,
   },
 });
@@ -246,12 +238,12 @@ const TabBarItem = React.memo(function TabBarItem({
                 focusedScale,
               ]}
             >
-              {options.tabBarIcon({ focused: true, color: 'white', size: 28 })}
+              {options.tabBarIcon({ focused: true, color: 'black', size: 28 })}
             </Animated.View>
             <Animated.View
               style={[StyleSheet.absoluteFillObject, unfocusedOpacity]}
             >
-              {options.tabBarIcon({ focused: false, color: 'gray', size: 28 })}
+              {options.tabBarIcon({ focused: false, color: 'white', size: 28 })}
             </Animated.View>
           </>
         ) : null}
@@ -262,7 +254,7 @@ const TabBarItem = React.memo(function TabBarItem({
             {
               fontSize: 11,
               fontWeight: '600',
-              color: 'white',
+              color: 'black',
               lineHeight: 14,
               includeFontPadding: false as unknown as boolean,
               textAlignVertical: 'center' as unknown as 'auto',
@@ -277,7 +269,7 @@ const TabBarItem = React.memo(function TabBarItem({
             {
               fontSize: 11,
               fontWeight: '600',
-              color: 'gray',
+              color: 'white',
               position: 'absolute',
               left: 0,
               right: 0,

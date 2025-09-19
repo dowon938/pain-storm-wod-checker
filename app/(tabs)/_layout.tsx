@@ -35,7 +35,7 @@ export default function TabLayout() {
             <MaterialCommunityIcons
               name='kettlebell'
               size={24}
-              color={focused ? 'white' : 'gray'}
+              color={!focused ? 'white' : 'black'}
             />
           ),
         }}
@@ -48,7 +48,7 @@ export default function TabLayout() {
             <Octicons
               name='location'
               size={20}
-              color={focused ? 'white' : 'gray'}
+              color={!focused ? 'white' : 'black'}
               style={{ marginTop: 2 }}
             />
           ),
