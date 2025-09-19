@@ -2,12 +2,14 @@ import BranchSelector from '@/components/wod/BranchSelector';
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
 import { createStore } from '@/lib/create-auto-store';
+import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Platform,
+  Pressable,
   RefreshControl,
   Text,
   View,
@@ -30,6 +32,7 @@ export const {
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
+  const flatListRef = useRef<FlatList<WodItem>>(null);
 
   useEffect(() => {
     updateGlobalRefetchWods(refetch);
@@ -37,14 +40,17 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
-      <View
+      <Pressable
         style={{
           padding: 12,
-          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 10 : 0),
+          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 10 : -10),
           paddingBottom: 10,
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
+        }}
+        onPress={() => {
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
         }}
       >
         <Image
@@ -54,7 +60,7 @@ export default function HomeScreen() {
           transition={150}
         />
         <BranchSelector />
-      </View>
+      </Pressable>
       {isLoading ? (
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
@@ -79,6 +85,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           contentContainerStyle={{
             paddingVertical: 8,
             paddingHorizontal: 2,
