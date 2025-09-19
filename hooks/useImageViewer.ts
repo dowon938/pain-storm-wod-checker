@@ -16,7 +16,6 @@ type ImageViewerState = {
 const store = createStore<ImageViewerState>({
   visible: false,
   imageUrl: undefined,
-  origin: undefined,
 });
 
 export const readVisible = store.readVisible;
@@ -27,16 +26,8 @@ export const readImageUrl = store.readImageUrl;
 export const updateImageUrl = store.updateImageUrl;
 export const useWatchImageUrl = store.useWatchImageUrl;
 
-export const readOrigin = store.readOrigin;
-export const updateOrigin = store.updateOrigin;
-export const useWatchOrigin = store.useWatchOrigin;
-
-export function openImageViewer(params: {
-  url: string;
-  origin: ImageViewerOrigin;
-}) {
-  updateImageUrl(params.url);
-  updateOrigin(params.origin);
+export function openImageViewer({ url = '' }) {
+  updateImageUrl?.(url);
   updateVisible(true);
 }
 

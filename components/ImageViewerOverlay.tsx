@@ -4,26 +4,18 @@ import {
   useWatchVisible,
 } from '@/hooks/useImageViewer';
 import * as FileSystem from 'expo-file-system';
-import { Image } from 'expo-image';
+import { Image, ImageProps } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import React from 'react';
 import {
-  Dimensions,
   GestureResponderEvent,
   Modal,
   Pressable,
   Text,
   View,
 } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SharedTransition,
-  SharedTransitionType,
-  withSpring,
-} from 'react-native-reanimated';
-
-const screen = Dimensions.get('window');
+import ImageViewer from 'react-native-image-zoom-viewer';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 export default function ImageViewerOverlay() {
   const visible = useWatchVisible();
@@ -57,8 +49,9 @@ export default function ImageViewerOverlay() {
       setSaving(false);
     }
   };
-
-  // Only Shared Transition open: remove custom progress/gestures
+  const renderImage = (props: ImageProps) => {
+    return <Image {...props} />;
+  };
 
   if (!visible || !url) return null;
 
@@ -72,136 +65,75 @@ export default function ImageViewerOverlay() {
       hardwareAccelerated
       onRequestClose={onDismiss}
     >
-      <View style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
+      <ImageViewer
+        backgroundColor={'rgba(0,0,0,0.95)'}
+        imageUrls={[{ url }]}
+        renderIndicator={() => <></>}
+        enableSwipeDown={true}
+        onSwipeDown={onDismiss}
+        saveToLocalByLongPress={false}
+        renderImage={renderImage}
+        renderHeader={() => (
           <View
             style={{
               position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.85)',
+              top: 50,
+              right: 16,
+              flexDirection: 'row',
+              gap: 12,
+              zIndex: 100,
             }}
-          />
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           >
-            <Animated.View
-              sharedTransitionTag={url}
-              sharedTransitionStyle={
-                SharedTransition.custom((values) => {
-                  'worklet';
-                  return {
-                    height: withSpring(values.targetHeight),
-                    width: withSpring(values.targetWidth),
-                  };
-                })
-                  .progressAnimation((values, progress) => {
-                    'worklet';
-                    const getValue = (
-                      progress: number,
-                      target: number,
-                      current: number
-                    ): number => {
-                      return progress * (target - current) + current;
-                    };
-                    return {
-                      width: getValue(
-                        progress,
-                        values.targetWidth,
-                        values.currentWidth
-                      ),
-                      height: getValue(
-                        progress,
-                        values.targetHeight,
-                        values.currentHeight
-                      ),
-                    };
-                  })
-                  .defaultTransitionType(SharedTransitionType.ANIMATION)
-                //   SharedTransition.custom((values) => {
-                //   'worklet';
-                //   return {
-                //     transform: [
-                //       {
-                //         translateX: values.targetOriginX - values.currentOriginX,
-                //       },
-                //       {
-                //         translateY: values.targetOriginY - values.currentOriginY,
-                //       },
-                //       { scaleX: values.targetWidth / values.currentWidth },
-                //       { scaleY: values.targetHeight / values.currentHeight },
-                //     ],
-                //   };
-                // }
-              }
-              style={{ width: '100%', height: '100%' }}
+            <Pressable
+              onPress={onDismiss}
+              style={{
+                height: 36,
+                paddingHorizontal: 14,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.12)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <Image
-                source={{ uri: url }}
-                style={{ width: '100%', height: '100%' }}
-                contentFit='contain'
-              />
-            </Animated.View>
+              <Text style={{ color: 'white', fontSize: 14 }}>닫기</Text>
+            </Pressable>
+            <Pressable
+              onPress={onSave}
+              style={{
+                height: 36,
+                paddingHorizontal: 14,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.12)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 14 }}>
+                {saving ? '저장중…' : '다운로드'}
+              </Text>
+            </Pressable>
           </View>
-        </View>
-
-        <View
+        )}
+      />
+      {saveDone && (
+        <Animated.View
+          entering={FadeIn}
+          exiting={FadeOut}
           style={{
             position: 'absolute',
-            top: 50,
-            right: 16,
-            flexDirection: 'row',
-            gap: 12,
+            bottom: 50,
+            alignSelf: 'center',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            borderRadius: 12,
           }}
         >
-          <Pressable
-            onPress={onDismiss}
-            style={{
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              borderRadius: 999,
-              backgroundColor: 'rgba(255,255,255,0.12)',
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 14 }}>닫기</Text>
-          </Pressable>
-          <Pressable
-            onPress={onSave}
-            style={{
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              borderRadius: 999,
-              backgroundColor: 'rgba(255,255,255,0.12)',
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 14 }}>
-              {saving ? '저장중…' : '다운로드'}
-            </Text>
-          </Pressable>
-        </View>
-
-        {saveDone && (
-          <Animated.View
-            entering={FadeIn}
-            exiting={FadeOut}
-            style={{
-              position: 'absolute',
-              bottom: 50,
-              alignSelf: 'center',
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: 'white' }}>
-              {saveDone === 'ok' ? '저장 완료' : '저장 실패'}
-            </Text>
-          </Animated.View>
-        )}
-      </View>
+          <Text style={{ color: 'white' }}>
+            {saveDone === 'ok' ? '저장 완료' : '저장 실패'}
+          </Text>
+        </Animated.View>
+      )}
     </Modal>
   );
 }
