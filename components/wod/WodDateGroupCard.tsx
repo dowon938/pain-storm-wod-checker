@@ -223,7 +223,6 @@ export function WodDateGroupCard({ wodItem }: Props) {
 const styles = StyleSheet.create({
   titleText: {
     fontSize: 24,
-    fontWeight: '900',
     position: 'absolute',
     color: 'rgba(255, 255, 255, 1)',
     textShadowColor: 'rgba(0, 0, 0, 0.8)',

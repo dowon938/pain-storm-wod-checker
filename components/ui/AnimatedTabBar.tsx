@@ -250,12 +250,13 @@ const TabBarItem = React.memo(function TabBarItem({
           </>
         ) : null}
       </View>
-      <View style={{ marginLeft: label === 'LOCATION' ? -8 : -4 }}>
+      <View style={{ marginLeft: label === 'LOCATION' ? -6 : -4 }}>
         <Animated.Text
           style={[
             {
               fontSize: 11,
-              fontWeight: '600',
+              marginTop: 2,
+              fontFamily: 'Heavitas',
               color: 'black',
               lineHeight: 14,
               includeFontPadding: false as unknown as boolean,
@@ -270,7 +271,8 @@ const TabBarItem = React.memo(function TabBarItem({
           style={[
             {
               fontSize: 11,
-              fontWeight: '600',
+              marginTop: 2,
+              fontFamily: 'Heavitas',
               color: 'white',
               position: 'absolute',
               left: 0,
