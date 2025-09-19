@@ -124,7 +124,19 @@ export default function ImageViewerOverlay() {
       startScale.value = scale.value;
     })
     .onUpdate((e) => {
-      scale.value = Math.max(1, Math.min(4, startScale.value * e.scale));
+      // Clamp scale
+      const nextScale = Math.max(1, Math.min(4, startScale.value * e.scale));
+      scale.value = nextScale;
+      // Clamp translations to keep content within screen
+      const boundMargin = 16;
+      const maxX =
+        Math.max(0, (screen.width * (nextScale - 1)) / 2) + boundMargin;
+      const maxY =
+        Math.max(0, (screen.height * (nextScale - 1)) / 2) + boundMargin;
+      if (translateX.value > maxX) translateX.value = maxX;
+      if (translateX.value < -maxX) translateX.value = -maxX;
+      if (translateY.value > maxY) translateY.value = maxY;
+      if (translateY.value < -maxY) translateY.value = -maxY;
     });
 
   const pan = Gesture.Pan()
@@ -133,8 +145,16 @@ export default function ImageViewerOverlay() {
       startY.value = translateY.value;
     })
     .onUpdate((e) => {
-      translateX.value = startX.value + e.translationX;
-      translateY.value = startY.value + e.translationY;
+      const boundMargin = 16;
+      const maxX =
+        Math.max(0, (screen.width * (scale.value - 1)) / 2) + boundMargin;
+      const maxY =
+        Math.max(0, (screen.height * (scale.value - 1)) / 2) + boundMargin;
+
+      const nextX = startX.value + e.translationX;
+      const nextY = startY.value + e.translationY;
+      translateX.value = Math.max(-maxX, Math.min(maxX, nextX));
+      translateY.value = Math.max(-maxY, Math.min(maxY, nextY));
     })
     .onEnd(() => {
       if (scale.value <= 1.01) {
