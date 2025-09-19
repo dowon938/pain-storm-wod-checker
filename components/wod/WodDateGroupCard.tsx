@@ -92,7 +92,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
     <View
       style={{
         backgroundColor: 'rgba(254, 250, 246, 0.95)',
-        borderRadius: 16,
+        borderRadius: 24,
         overflow: 'hidden',
       }}
     >
@@ -122,10 +122,10 @@ export function WodDateGroupCard({ wodItem }: Props) {
             style={[
               styles.titleText,
               {
-                top: 12,
+                top: 16,
                 left: 16,
-                opacity: 0.7,
-                textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                opacity: 0.8,
+                textShadowColor: 'rgba(0, 0, 0, 0.7)',
               },
             ]}
           >

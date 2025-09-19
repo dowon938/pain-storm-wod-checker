@@ -79,13 +79,14 @@ export default function AnimatedTabBar({
       ]}
     >
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.6)']}
+        colors={['transparent', 'rgba(255,255,255,0.8)']}
         style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          height: 70,
+          height: 90,
+          opacity: 0.8,
         }}
       />
       <View style={styles.container} onLayout={onLayout}>
@@ -136,6 +137,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 0.5,
     backgroundColor: 'black',
+    // backgroundColor: '#1F1F1F',
     borderColor: 'rgba(0,0,0,0.2)',
   },
   tab: {
@@ -151,8 +153,8 @@ const styles = StyleSheet.create({
     top: 6,
     bottom: 6,
     left: 6,
-    // backgroundColor: 'black',
     backgroundColor: 'white',
+    // backgroundColor: '#363636',
     borderRadius: 18,
   },
 });
