@@ -20,8 +20,6 @@ type Props = {
   wodItem: WodItem;
 };
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
-
 const EngNames = {
   압구정: 'APGUJEONG.',
   잠실: 'JAMSIL.',
@@ -97,15 +95,15 @@ export function WodDateGroupCard({ wodItem }: Props) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <View
+        <Animated.View
+          entering={FadeIn}
           style={{
             width: '100%',
             height: imageRatio ? width / imageRatio - 20 : 68,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
           }}
         >
-          <AnimatedImage
-            entering={FadeIn}
+          <Image
             source={{ uri: wodItem.imageUrl }}
             style={{
               position: 'absolute',
@@ -116,7 +114,6 @@ export function WodDateGroupCard({ wodItem }: Props) {
               backgroundColor: '#f3f4f6',
             }}
             contentFit='cover'
-            transition={150}
           />
           <Text
             style={[
@@ -138,7 +135,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
               wodItem.wods[0].name ??
               ''}
           </Text>
-        </View>
+        </Animated.View>
         <View style={{ padding: 12, paddingBottom: 0 }}>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {names.map((name, idx) => {
