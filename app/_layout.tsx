@@ -7,7 +7,9 @@ import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
-import { Text, View } from 'react-native';
+import { Image, LogBox, Text, View } from 'react-native';
+
+LogBox.ignoreAllLogs();
 
 function RootLayout() {
   const [loaded] = useFonts({
@@ -50,19 +52,35 @@ export default HotUpdater.wrap({
     <View
       style={{
         flex: 1,
-        padding: 20,
-        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 1)',
       }}
     >
-      {/* You can put a splash image here. */}
-      <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+      <Image
+        source={require('../assets/images/splash-icon.png')}
+        style={{ width: 200, height: 200 }}
+        resizeMode='contain'
+      />
+      <Text
+        style={{
+          color: 'rgba(255,255,255,0.7)',
+          fontSize: 12,
+          position: 'absolute',
+          bottom: 70,
+        }}
+      >
         {status === 'UPDATING' ? 'Updating...' : 'Checking for Update...'}
       </Text>
       {progress > 0 ? (
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+        <Text
+          style={{
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: 12,
+            position: 'absolute',
+            bottom: 50,
+          }}
+        >
           {Math.round(progress * 100)}%
         </Text>
       ) : null}
