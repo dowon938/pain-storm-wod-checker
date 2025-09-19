@@ -15,6 +15,11 @@ import {
   Text,
   View,
 } from 'react-native';
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   FadeIn,
@@ -106,6 +111,49 @@ export default function ImageViewerOverlay() {
     }
   };
 
+  // Zoom & Pan shared states
+  const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const startScale = useSharedValue(1);
+  const startX = useSharedValue(0);
+  const startY = useSharedValue(0);
+
+  const pinch = Gesture.Pinch()
+    .onStart(() => {
+      startScale.value = scale.value;
+    })
+    .onUpdate((e) => {
+      scale.value = Math.max(1, Math.min(4, startScale.value * e.scale));
+    });
+
+  const pan = Gesture.Pan()
+    .onStart(() => {
+      startX.value = translateX.value;
+      startY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      translateX.value = startX.value + e.translationX;
+      translateY.value = startY.value + e.translationY;
+    })
+    .onEnd(() => {
+      if (scale.value <= 1.01) {
+        scale.value = withTiming(1, { duration: 160 });
+        translateX.value = withTiming(0, { duration: 160 });
+        translateY.value = withTiming(0, { duration: 160 });
+      }
+    });
+
+  const composedGesture = Gesture.Simultaneous(pinch, pan);
+
+  const zoomStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
+
   if (!visible || !url || !origin) return null;
 
   return (
@@ -133,18 +181,27 @@ export default function ImageViewerOverlay() {
           },
           bgStyle,
         ]}
+        pointerEvents='none'
       />
-      <Pressable onPress={onDismiss} style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <Animated.View
           style={[rStyle, { justifyContent: 'center', alignItems: 'center' }]}
         >
-          <Image
-            source={{ uri: url }}
-            style={{ width: '100%', height: '100%' }}
-            contentFit='contain'
-          />
+          <GestureHandlerRootView style={{ width: '100%', height: '100%' }}>
+            <GestureDetector gesture={composedGesture}>
+              <Animated.View
+                style={[{ width: '100%', height: '100%' }, zoomStyle]}
+              >
+                <Image
+                  source={{ uri: url }}
+                  style={{ width: '100%', height: '100%' }}
+                  contentFit='contain'
+                />
+              </Animated.View>
+            </GestureDetector>
+          </GestureHandlerRootView>
         </Animated.View>
-      </Pressable>
+      </View>
 
       <View
         style={{
@@ -168,7 +225,6 @@ export default function ImageViewerOverlay() {
         </Pressable>
         <Pressable
           onPress={onSave}
-          disabled={saving}
           style={{
             paddingHorizontal: 14,
             paddingVertical: 10,
