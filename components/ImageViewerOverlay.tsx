@@ -174,6 +174,15 @@ export default function ImageViewerOverlay() {
     ],
   }));
 
+  // Reset zoom and position when viewer closes
+  React.useEffect(() => {
+    if (!visible) {
+      scale.value = 1;
+      translateX.value = 0;
+      translateY.value = 0;
+    }
+  }, [visible, scale, translateX, translateY]);
+
   if (!visible || !url || !origin) return null;
 
   return (
