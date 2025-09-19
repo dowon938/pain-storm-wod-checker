@@ -80,9 +80,9 @@ export default function HomeScreen() {
       ) : (
         <FlatList
           contentContainerStyle={{
-            // paddingVertical: 12,
-            // paddingHorizontal: 0,
-            gap: 16,
+            paddingVertical: 8,
+            paddingHorizontal: 2,
+            gap: 12,
           }}
           data={data?.wodItems || []}
           keyExtractor={(item) => item.id}
