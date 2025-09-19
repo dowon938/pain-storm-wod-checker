@@ -129,18 +129,29 @@ export function WodDateGroupCard({ wodItem }: Props) {
                 });
               }}
             >
-              <Image
-                source={{ uri: wodItem.imageUrl }}
+              <Animated.View
+                sharedTransitionTag={wodItem.imageUrl}
                 style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundColor: '#f3f4f6',
                 }}
-                contentFit='cover'
-              />
+              >
+                <Image
+                  source={{ uri: wodItem.imageUrl }}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: '#f3f4f6',
+                  }}
+                  contentFit='cover'
+                />
+              </Animated.View>
             </TouchableOpacity>
           </View>
           <Text
