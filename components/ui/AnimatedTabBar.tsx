@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     backgroundColor: 'black',
     // backgroundColor: '#1F1F1F',
-    borderColor: 'rgba(0,0,0,0.2)',
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   tab: {
     flex: 1,
