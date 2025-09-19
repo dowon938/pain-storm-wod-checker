@@ -157,14 +157,12 @@ export const usePushNotifications = (): PushNotificationState => {
     if (!expoPushToken) return;
     const fetchToken = async () => {
       try {
-        const res = await fetch(
-          'https://painstorm-push-noti.dowon938.workers.dev/tokens',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ expoToken: expoPushToken }), // 또는 userId 생기면 실제 값
-          }
-        );
+        // const res =
+        await fetch('https://painstorm-push-noti.dowon938.workers.dev/tokens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expoToken: expoPushToken }), // 또는 userId 생기면 실제 값
+        });
         console.log(expoPushToken);
         // const data = await res.json();
         // console.log(data);

@@ -1,6 +1,4 @@
-import BranchSelector, {
-  useWatchPerferBranch,
-} from '@/components/wod/BranchSelector';
+import BranchSelector from '@/components/wod/BranchSelector';
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
 import { createStore } from '@/lib/create-auto-store';
@@ -32,8 +30,7 @@ export const {
 export default function HomeScreen() {
   const { top } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
-  const perferBranch = useWatchPerferBranch();
-  // console.log('home', isRefetching);
+
   useEffect(() => {
     updateGlobalRefetchWods(refetch);
   }, [refetch]);
