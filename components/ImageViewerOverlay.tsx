@@ -68,7 +68,7 @@ export default function ImageViewerOverlay() {
           <View
             style={{
               position: 'absolute',
-              top: 50,
+              top: 56,
               right: 16,
               flexDirection: 'row',
               gap: 12,
