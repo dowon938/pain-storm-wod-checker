@@ -111,6 +111,17 @@ export default function ImageViewerOverlay() {
             initialZoom={1}
             bindToBorders={true}
             visualTouchFeedbackEnabled={false}
+            onPanResponderEnd={(_e, gesture, ev) => {
+              const zoom = ev.zoomLevel;
+              const isAtOne = Math.abs(zoom - 1) < 0.02; // tolerate float jitter
+              const verticalSwipe =
+                Math.abs(gesture.dy) > 60 &&
+                Math.abs(gesture.vy) > 0.6 &&
+                Math.abs(gesture.dy) > Math.abs(gesture.dx);
+              if (isAtOne && verticalSwipe) {
+                onDismiss();
+              }
+            }}
           >
             <Image
               style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
