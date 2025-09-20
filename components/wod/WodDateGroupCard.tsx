@@ -51,6 +51,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   const cardWidth = width - horizontalPadding * 2;
   const pageWidth = cardWidth + itemSpacing;
   const didSetInitialScrollRef = React.useRef(false);
+  const lastHapticIndexRef = React.useRef<number | null>(null);
 
   const names = React.useMemo(
     () => wodItem.wods.map((w) => w.name),
@@ -263,16 +264,38 @@ export function WodDateGroupCard({ wodItem }: Props) {
                     scrollRef.current?.scrollTo({ x, y: 0, animated: false });
                   }
                 }}
+                onScroll={(e) => {
+                  const x = e.nativeEvent.contentOffset.x;
+                  const idx = Math.round(x / pageWidth);
+                  if (
+                    idx !== activeIndex &&
+                    idx >= 0 &&
+                    idx < wodItem.wods.length
+                  ) {
+                    setActiveIndex(idx);
+                    const h = itemHeightsRef.current[idx] ?? 0;
+                    activeItemHeight.value = withTiming(h, {
+                      duration: 240,
+                      easing: Easing.out(Easing.cubic),
+                    });
+                    if (lastHapticIndexRef.current !== idx) {
+                      hapticLight();
+                      lastHapticIndexRef.current = idx;
+                    }
+                  }
+                }}
+                scrollEventThrottle={16 * 3}
                 onMomentumScrollEnd={(e) => {
                   const x = e.nativeEvent.contentOffset.x;
                   const idx = Math.round(x / pageWidth);
-                  hapticLight();
-                  setActiveIndex(idx);
-                  const h = itemHeightsRef.current[idx] ?? 0;
-                  activeItemHeight.value = withTiming(h, {
-                    duration: 240,
-                    easing: Easing.out(Easing.cubic),
-                  });
+                  if (idx !== activeIndex) {
+                    setActiveIndex(idx);
+                    const h = itemHeightsRef.current[idx] ?? 0;
+                    activeItemHeight.value = withTiming(h, {
+                      duration: 240,
+                      easing: Easing.out(Easing.cubic),
+                    });
+                  }
                 }}
               >
                 {wodItem.wods.map((item, index) => (
