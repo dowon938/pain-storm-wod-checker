@@ -6,9 +6,15 @@ type Props = {
   wod: Wod;
   itemHeightsRef: React.RefObject<Record<number, number>>;
   idx: number;
+  isAllAtOnce?: boolean;
 };
 
-export function WodCard({ wod, itemHeightsRef, idx }: Props) {
+export function WodCard({
+  wod,
+  itemHeightsRef,
+  idx,
+  isAllAtOnce = false,
+}: Props) {
   return (
     <View
       style={{
@@ -16,7 +22,7 @@ export function WodCard({ wod, itemHeightsRef, idx }: Props) {
         borderRadius: 24,
         padding: 16,
         gap: 8,
-        marginVertical: 12,
+        marginVertical: isAllAtOnce ? 0 : 12,
       }}
       onLayout={(e) => {
         itemHeightsRef.current[idx] = e.nativeEvent.layout.height;
@@ -29,7 +35,7 @@ export function WodCard({ wod, itemHeightsRef, idx }: Props) {
           alignItems: 'baseline',
         }}
       >
-        <Text style={{ fontSize: 16, fontWeight: '600' }}>{wod.name}</Text>
+        <Text style={{ fontSize: 17, fontWeight: '600' }}>{wod.name}</Text>
         {/* <Text style={{ fontSize: 12, color: '#6b7280' }}>
           {entry.dateLabel}
         </Text> */}
@@ -40,11 +46,11 @@ export function WodCard({ wod, itemHeightsRef, idx }: Props) {
       >
         {entry.title}
       </Text> */}
-      <View style={{ gap: 4, marginBottom: 4 }}>
+      <View style={{ gap: 5, marginBottom: 4 }}>
         {wod.lines.map((line, idx) => (
           <Text
             key={`${wod.name}-${idx}`}
-            style={{ fontSize: 13, color: '#374151' }}
+            style={{ fontSize: 14, color: '#374151' }}
           >
             {line}
           </Text>

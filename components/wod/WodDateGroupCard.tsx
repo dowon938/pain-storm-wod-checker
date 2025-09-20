@@ -10,7 +10,10 @@ import {
   View,
 } from 'react-native';
 
-import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
+import {
+  PerferBranch,
+  useWatchPerferBranch,
+} from '@/components/wod/BranchSelector';
 import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { debounce } from 'es-toolkit/compat';
@@ -42,6 +45,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   const { width } = useWindowDimensions();
   const flatListRef = React.useRef<FlatList<any>>(null);
   const perferBranch = useWatchPerferBranch();
+  const isAllAtOnce = perferBranch === PerferBranch.ALL_AT_ONCE;
 
   const itemSpacing = 12;
   const horizontalPadding = 12;
@@ -72,7 +76,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
   const activeItemHeight = useSharedValue(MIN_ITEM_HEIGHT);
   const heightAnimatedStyle = useAnimatedStyle(() => {
     return {
-      height: activeItemHeight.value
+      height: isAllAtOnce
+        ? undefined
+        : activeItemHeight.value
         ? activeItemHeight.value + 12 + 12
         : undefined,
     };
@@ -87,6 +93,11 @@ export function WodDateGroupCard({ wodItem }: Props) {
         activeItemHeight.value = itemHeightsRef.current[idx];
       }
       flatListRef.current?.scrollToIndex({ index: idx, animated: true });
+    } else {
+      activeItemHeight.value = Object.values(itemHeightsRef.current).reduce(
+        (acc, curr) => acc + (curr ?? 0),
+        0
+      );
     }
   }, [perferBranch, names, activeItemHeight]);
 
@@ -197,89 +208,112 @@ export function WodDateGroupCard({ wodItem }: Props) {
           </Text>
         </Animated.View>
         <View style={{ padding: 12, paddingBottom: 0 }}>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            {names.map((name, idx) => {
-              const selected = idx === activeIndex;
-              return (
-                <TouchableOpacity
-                  key={`${name}-${idx}`}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setActiveIndex(idx);
-                    flatListRef.current?.scrollToIndex({
-                      index: idx,
-                      animated: true,
-                    });
-                  }}
-                  style={{
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    borderRadius: 999,
-                    backgroundColor: selected ? 'black' : 'transparent',
-                    borderWidth: 1,
-                    borderColor: 'rgba(0,0,0,0.1)',
-                  }}
-                >
-                  <Text
+          {isAllAtOnce ? null : (
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {names.map((name, idx) => {
+                const selected = idx === activeIndex;
+                return (
+                  <TouchableOpacity
+                    key={`${name}-${idx}`}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      hapticLight();
+                      setActiveIndex(idx);
+                      flatListRef.current?.scrollToIndex({
+                        index: idx,
+                        animated: true,
+                      });
+                    }}
+                    hitSlop={4}
                     style={{
-                      fontSize: 12,
-                      fontWeight: '600',
-                      color: selected ? 'white' : '#111827',
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: 999,
+                      backgroundColor: selected ? 'black' : 'transparent',
+                      borderWidth: 1,
+                      borderColor: 'rgba(0,0,0,0.1)',
                     }}
                   >
-                    {name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <Animated.View style={heightAnimatedStyle}>
-            <FlatList
-              nestedScrollEnabled
-              style={{ marginHorizontal: -12 }}
-              ref={flatListRef}
-              data={wodItem.wods}
-              keyExtractor={(item, idx) => `${item.name}-${idx}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToAlignment='start'
-              decelerationRate='fast'
-              snapToInterval={cardWidth + itemSpacing}
-              getItemLayout={(_, index) => ({
-                length: cardWidth + itemSpacing,
-                offset: (cardWidth + itemSpacing) * index,
-                index,
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: '600',
+                        color: selected ? 'white' : '#111827',
+                      }}
+                    >
+                      {name}
+                    </Text>
+                  </TouchableOpacity>
+                );
               })}
-              initialScrollIndex={initialIndex}
-              onScrollToIndexFailed={(info) => {
-                setTimeout(() => {
-                  flatListRef.current?.scrollToIndex({
-                    index: info.index,
-                    animated: false,
-                  });
-                }, 0);
-              }}
-              contentContainerStyle={{
-                paddingLeft: horizontalPadding,
-                paddingRight: horizontalPadding,
-              }}
-              ItemSeparatorComponent={() => (
-                <View style={{ width: itemSpacing }} />
-              )}
-              renderItem={({ item, index }) => (
-                <View style={{ width: cardWidth }}>
-                  <WodCard
-                    wod={item}
-                    itemHeightsRef={itemHeightsRef}
-                    idx={index}
-                  />
-                </View>
-              )}
-              viewabilityConfig={viewabilityConfig}
-              onViewableItemsChanged={onViewableItemsChanged}
-            />
-          </Animated.View>
+            </View>
+          )}
+          {isAllAtOnce ? (
+            <View style={{ gap: 12, marginBottom: 12 }}>
+              {wodItem.wods.map((item, index) => {
+                return (
+                  <View
+                    key={`atonce-${item.name}-${index}`}
+                    style={{ width: cardWidth }}
+                  >
+                    <WodCard
+                      wod={item}
+                      itemHeightsRef={itemHeightsRef}
+                      idx={index}
+                      isAllAtOnce={isAllAtOnce}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            <Animated.View style={heightAnimatedStyle}>
+              <FlatList
+                nestedScrollEnabled
+                style={{ marginHorizontal: -12 }}
+                ref={flatListRef}
+                data={wodItem.wods}
+                keyExtractor={(item, idx) => `${item.name}-${idx}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                snapToAlignment='start'
+                decelerationRate='fast'
+                snapToInterval={cardWidth + itemSpacing}
+                getItemLayout={(_, index) => ({
+                  length: cardWidth + itemSpacing,
+                  offset: (cardWidth + itemSpacing) * index,
+                  index,
+                })}
+                initialScrollIndex={initialIndex}
+                onScrollToIndexFailed={(info) => {
+                  setTimeout(() => {
+                    flatListRef.current?.scrollToIndex({
+                      index: info.index,
+                      animated: false,
+                    });
+                  }, 0);
+                }}
+                contentContainerStyle={{
+                  paddingLeft: horizontalPadding,
+                  paddingRight: horizontalPadding,
+                }}
+                ItemSeparatorComponent={() => (
+                  <View style={{ width: itemSpacing }} />
+                )}
+                renderItem={({ item, index }) => (
+                  <View style={{ width: cardWidth }}>
+                    <WodCard
+                      wod={item}
+                      itemHeightsRef={itemHeightsRef}
+                      idx={index}
+                    />
+                  </View>
+                )}
+                viewabilityConfig={viewabilityConfig}
+                onViewableItemsChanged={onViewableItemsChanged}
+              />
+            </Animated.View>
+          )}
         </View>
       </View>
     </View>

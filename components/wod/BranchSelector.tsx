@@ -13,12 +13,13 @@ const PREF_PERFER_BRANCH = 'perferBranch';
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-enum PerferBranch {
+export enum PerferBranch {
   ALL = 'ALL',
   APGUJEONG = '압구정',
   JAMSIL = '잠실',
   SUWON = '수원',
   ACHASAN = '아차산',
+  ALL_AT_ONCE = 'ALL_AT_ONCE',
 }
 
 export const { readPerferBranch, updatePerferBranch, useWatchPerferBranch } =
@@ -44,6 +45,7 @@ const BranchSelector = () => {
     { label: '잠실', value: PerferBranch.JAMSIL },
     { label: '수원', value: PerferBranch.SUWON },
     { label: '아차산', value: PerferBranch.ACHASAN },
+    { label: '한 번에 보기', value: PerferBranch.ALL_AT_ONCE },
   ];
 
   const currentLabel =
@@ -107,6 +109,8 @@ const BranchSelector = () => {
               left: anchor ? anchor.x : undefined,
               right: anchor ? undefined : 8,
               backgroundColor: 'white',
+              borderWidth: 0.5,
+              borderColor: 'rgba(0,0,0,0.4)',
               borderRadius: 12,
               padding: 6,
               shadowColor: '#000',
