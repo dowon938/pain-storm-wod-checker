@@ -64,7 +64,7 @@ export default function ImageViewerOverlay() {
       onRequestClose={onDismiss}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)' }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.92)' }}>
           <View
             style={{
               position: 'absolute',
@@ -107,7 +107,7 @@ export default function ImageViewerOverlay() {
           <ReactNativeZoomableView
             maxZoom={4}
             minZoom={1}
-            zoomStep={2}
+            zoomStep={4}
             initialZoom={1}
             bindToBorders={true}
             visualTouchFeedbackEnabled={false}
