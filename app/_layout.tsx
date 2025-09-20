@@ -9,7 +9,6 @@ import ImageViewerOverlay from '@/components/ImageViewerOverlay';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
 import { Image, LogBox, Text, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 LogBox.ignoreAllLogs();
 
@@ -27,19 +26,17 @@ function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ReactQueryProvider>
-        <ThemeProvider value={DarkTheme}>
-          <Stack>
-            <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-            <Stack.Screen name='+not-found' />
-          </Stack>
-          <StatusBar style='light' />
-          <ImageViewerOverlay />
-        </ThemeProvider>
-        <ReducedMotionConfig mode={ReduceMotion.Never} />
-      </ReactQueryProvider>
-    </GestureHandlerRootView>
+    <ReactQueryProvider>
+      <ThemeProvider value={DarkTheme}>
+        <Stack>
+          <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+          <Stack.Screen name='+not-found' />
+        </Stack>
+        <StatusBar style='light' />
+        <ImageViewerOverlay />
+      </ThemeProvider>
+      <ReducedMotionConfig mode={ReduceMotion.Never} />
+    </ReactQueryProvider>
   );
 }
 
