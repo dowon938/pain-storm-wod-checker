@@ -43,7 +43,7 @@ export default function HomeScreen() {
       <Pressable
         style={{
           padding: 12,
-          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 10 : -10),
+          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 8 : -10),
           paddingBottom: 10,
           flexDirection: 'row',
           // justifyContent: 'space-between',

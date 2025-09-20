@@ -70,7 +70,7 @@ const BranchSelector = () => {
           marginTop: 1,
           backgroundColor: 'black',
           paddingHorizontal: 9,
-          paddingVertical: 5,
+          paddingVertical: 6,
           paddingRight: 7,
           borderWidth: 1,
           borderColor: 'white',
