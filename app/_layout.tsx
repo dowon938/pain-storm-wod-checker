@@ -8,7 +8,8 @@ import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 import ImageViewerOverlay from '@/components/ImageViewerOverlay';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
-import { Image, LogBox, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { LogBox, Text, View } from 'react-native';
 
 LogBox.ignoreAllLogs();
 
