@@ -213,7 +213,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
                     paddingVertical: 6,
                     borderRadius: 999,
                     backgroundColor: selected ? 'black' : 'transparent',
-                    borderWidth: selected ? 0 : 1,
+                    borderWidth: 1,
                     borderColor: 'rgba(0,0,0,0.1)',
                   }}
                 >
