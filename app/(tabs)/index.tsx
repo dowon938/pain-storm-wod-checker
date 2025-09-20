@@ -19,7 +19,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-const LogoMultiplier = 0.8;
+const LogoMultiplier = 0.95;
 
 export const {
   readGlobalRefetchWods,
@@ -46,7 +46,7 @@ export default function HomeScreen() {
           paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 10 : -10),
           paddingBottom: 10,
           flexDirection: 'row',
-          justifyContent: 'space-between',
+          // justifyContent: 'space-between',
           alignItems: 'center',
         }}
         onPress={() => {

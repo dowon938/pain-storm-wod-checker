@@ -41,18 +41,25 @@ const BranchSelector = () => {
     <>
       <TouchableOpacity
         onPress={() => setOpen(true)}
+        hitSlop={12}
         style={{
-          borderRadius: 8,
+          marginLeft: 8,
+          backgroundColor: 'black',
+          paddingHorizontal: 10,
+          paddingVertical: 6,
+          borderWidth: 0.5,
+          borderColor: 'white',
+          borderRadius: 20,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 4,
         }}
         activeOpacity={0.7}
       >
-        <Text style={{ fontSize: 16, fontWeight: '500', color: 'white' }}>
+        <Text style={{ fontSize: 14, fontWeight: '500', color: 'white' }}>
           {currentLabel}
         </Text>
-        <FontAwesome6 name='angle-down' size={16} color='gray' />
+        <FontAwesome6 name='angle-down' size={12} color='white' />
       </TouchableOpacity>
       <Modal
         visible={open}
