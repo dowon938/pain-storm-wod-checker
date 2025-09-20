@@ -14,7 +14,7 @@ import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { debounce } from 'es-toolkit/compat';
 import React from 'react';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { WodCard } from './WodCard';
 
 type Props = {
@@ -69,8 +69,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
     }
   }, [perferBranch, names]);
 
+  const itemHeightsRef = React.useRef<Record<number, number>>({});
+
   const debouncedSetActiveIndex = debounce((idx: number) => {
-    // console.log('setActiveIndex');
     setActiveIndex(idx);
   }, 300);
 
@@ -80,6 +81,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
       if (first && typeof first.index === 'number') {
         // console.log('onViewableItemsChanged', first.index);
         debouncedSetActiveIndex(first.index);
+        setListHeight(itemHeightsRef.current[first.index]);
       }
     }
   ).current;
@@ -87,7 +89,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
     itemVisiblePercentThreshold: 60,
   }).current;
 
-  const imageTouchableRef = React.useRef<View>(null);
+  const [listHeight, setListHeight] = React.useState<number | undefined>(
+    undefined
+  );
 
   return (
     <View
@@ -209,46 +213,55 @@ export function WodDateGroupCard({ wodItem }: Props) {
             })}
           </View>
 
-          <FlatList
-            nestedScrollEnabled
-            style={{ marginHorizontal: -12 }}
-            ref={flatListRef}
-            data={wodItem.wods}
-            keyExtractor={(item, idx) => `${item.name}-${idx}`}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToAlignment='start'
-            decelerationRate='fast'
-            snapToInterval={cardWidth + itemSpacing}
-            getItemLayout={(_, index) => ({
-              length: cardWidth + itemSpacing,
-              offset: (cardWidth + itemSpacing) * index,
-              index,
-            })}
-            initialScrollIndex={initialIndex}
-            onScrollToIndexFailed={(info) => {
-              setTimeout(() => {
-                flatListRef.current?.scrollToIndex({
-                  index: info.index,
-                  animated: false,
-                });
-              }, 0);
-            }}
-            contentContainerStyle={{
-              paddingLeft: horizontalPadding,
-              paddingRight: horizontalPadding,
-            }}
-            ItemSeparatorComponent={() => (
-              <View style={{ width: itemSpacing }} />
-            )}
-            renderItem={({ item }) => (
-              <View style={{ width: cardWidth }}>
-                <WodCard wod={item} />
-              </View>
-            )}
-            viewabilityConfig={viewabilityConfig}
-            onViewableItemsChanged={onViewableItemsChanged}
-          />
+          <Animated.View
+            layout={LinearTransition}
+            style={{ height: (listHeight || 0) + 12 + 12 }}
+          >
+            <FlatList
+              nestedScrollEnabled
+              style={{ marginHorizontal: -12 }}
+              ref={flatListRef}
+              data={wodItem.wods}
+              keyExtractor={(item, idx) => `${item.name}-${idx}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToAlignment='start'
+              decelerationRate='fast'
+              snapToInterval={cardWidth + itemSpacing}
+              getItemLayout={(_, index) => ({
+                length: cardWidth + itemSpacing,
+                offset: (cardWidth + itemSpacing) * index,
+                index,
+              })}
+              initialScrollIndex={initialIndex}
+              onScrollToIndexFailed={(info) => {
+                setTimeout(() => {
+                  flatListRef.current?.scrollToIndex({
+                    index: info.index,
+                    animated: false,
+                  });
+                }, 0);
+              }}
+              contentContainerStyle={{
+                paddingLeft: horizontalPadding,
+                paddingRight: horizontalPadding,
+              }}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: itemSpacing }} />
+              )}
+              renderItem={({ item, index }) => (
+                <View style={{ width: cardWidth }}>
+                  <WodCard
+                    wod={item}
+                    itemHeightsRef={itemHeightsRef}
+                    idx={index}
+                  />
+                </View>
+              )}
+              viewabilityConfig={viewabilityConfig}
+              onViewableItemsChanged={onViewableItemsChanged}
+            />
+          </Animated.View>
         </View>
       </View>
     </View>

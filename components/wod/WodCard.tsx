@@ -4,9 +4,11 @@ import { Text, View } from 'react-native';
 
 type Props = {
   wod: Wod;
+  itemHeightsRef: React.RefObject<Record<number, number>>;
+  idx: number;
 };
 
-export function WodCard({ wod }: Props) {
+export function WodCard({ wod, itemHeightsRef, idx }: Props) {
   return (
     <View
       style={{
@@ -15,6 +17,9 @@ export function WodCard({ wod }: Props) {
         padding: 16,
         gap: 8,
         marginVertical: 12,
+      }}
+      onLayout={(e) => {
+        itemHeightsRef.current[idx] = e.nativeEvent.layout.height;
       }}
     >
       <View
