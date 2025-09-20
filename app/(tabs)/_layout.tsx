@@ -2,27 +2,17 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 // import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HapticTab } from '@/components/HapticTab';
 import AnimatedTabBar from '@/components/ui/AnimatedTabBar';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  // const insets = useSafeAreaInsets();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: 'black',
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarHideOnKeyboard: true,
-        // We'll supply a custom tabBar; built-in style is not needed
         tabBarStyle: { display: 'none' },
       }}
       tabBar={(props) => <AnimatedTabBar {...props} />}
