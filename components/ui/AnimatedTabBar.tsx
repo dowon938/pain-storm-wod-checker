@@ -17,6 +17,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+const SPACE_INSIDE_CONTAINER = 5;
+const BORDER_WIDTH = 0.5;
+
 export default function AnimatedTabBar({
   state,
   descriptors,
@@ -59,7 +62,7 @@ export default function AnimatedTabBar({
   }, [indicatorX, state.index]);
 
   const indicatorStyle = useAnimatedStyle(() => {
-    const horizontalInset = 12; // left 4 + right 4 space inside container
+    const horizontalInset = SPACE_INSIDE_CONTAINER * 2 + BORDER_WIDTH * 2;
     const innerWidth = Math.max(containerWidth - horizontalInset, 0);
     const segmentWidth = tabCount > 0 ? innerWidth / tabCount : 0;
     const translateX = segmentWidth * indicatorX.value;
@@ -135,7 +138,7 @@ const styles = StyleSheet.create({
     width: '70%',
     borderRadius: 26,
     overflow: 'hidden',
-    borderWidth: 0.5,
+    borderWidth: BORDER_WIDTH,
     backgroundColor: 'black',
     // backgroundColor: '#1F1F1F',
     borderColor: 'rgba(255,255,255,0.4)',
@@ -150,9 +153,9 @@ const styles = StyleSheet.create({
   },
   indicator: {
     position: 'absolute',
-    top: 5,
-    bottom: 5,
-    left: 5,
+    top: SPACE_INSIDE_CONTAINER,
+    bottom: SPACE_INSIDE_CONTAINER,
+    left: SPACE_INSIDE_CONTAINER,
     backgroundColor: 'white',
     // backgroundColor: '#363636',
     borderRadius: 26,
