@@ -2,7 +2,14 @@ import { createStore } from '@/lib/create-auto-store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import React from 'react';
-import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { MMKV } from 'react-native-mmkv';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const storage = new MMKV();
@@ -24,6 +31,13 @@ export const { readPerferBranch, updatePerferBranch, useWatchPerferBranch } =
 const BranchSelector = () => {
   const insets = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
+  const buttonRef = React.useRef<View>(null);
+  const [anchor, setAnchor] = React.useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
   const perferBranch = useWatchPerferBranch();
 
   const options: { label: string; value: PerferBranch }[] = [
@@ -37,16 +51,26 @@ const BranchSelector = () => {
   const currentLabel =
     options.find((o) => o.value === perferBranch)?.label ?? '전체';
 
+  const windowWidth = Dimensions.get('window').width;
+  const MENU_MIN_WIDTH = 112;
+
   return (
     <>
       <TouchableOpacity
-        onPress={() => setOpen(true)}
+        ref={buttonRef}
+        onPress={() => {
+          buttonRef.current?.measureInWindow?.((x, y, width, height) => {
+            setAnchor({ x, y, width, height });
+            setOpen(true);
+          });
+        }}
         hitSlop={12}
         style={{
           marginLeft: 8,
           backgroundColor: 'black',
-          paddingHorizontal: 10,
-          paddingVertical: 6,
+          paddingHorizontal: 9,
+          paddingVertical: 5,
+          paddingRight: 6,
           borderWidth: 0.5,
           borderColor: 'white',
           borderRadius: 20,
@@ -74,8 +98,16 @@ const BranchSelector = () => {
           <View
             style={{
               position: 'absolute',
-              top: insets.top + 20,
-              right: 8,
+              top: anchor
+                ? Math.max(insets.top + 8, anchor.y + anchor.height + 6)
+                : insets.top + 20,
+              left: anchor
+                ? Math.min(
+                    Math.max(anchor.x + anchor.width - MENU_MIN_WIDTH / 2, 8),
+                    windowWidth - 8 - MENU_MIN_WIDTH
+                  )
+                : undefined,
+              right: anchor ? undefined : 8,
               backgroundColor: 'white',
               borderRadius: 12,
               padding: 6,
@@ -84,7 +116,7 @@ const BranchSelector = () => {
               shadowRadius: 12,
               shadowOffset: { width: 0, height: 6 },
               elevation: 4,
-              minWidth: 112,
+              minWidth: MENU_MIN_WIDTH,
             }}
           >
             <Text
