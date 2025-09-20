@@ -82,10 +82,8 @@ export function WodDateGroupCard({ wodItem }: Props) {
     if (idx >= 0) {
       setActiveIndex(idx);
       if (itemHeightsRef.current[idx]) {
-        activeItemHeight.value = withTiming(itemHeightsRef.current[idx], {
-          duration: 240,
-          easing: Easing.out(Easing.cubic),
-        });
+        //브랜치 설정바뀔때 withTiming 호출시 부하가 커서 제거
+        activeItemHeight.value = itemHeightsRef.current[idx];
       }
       flatListRef.current?.scrollToIndex({ index: idx, animated: true });
     }
