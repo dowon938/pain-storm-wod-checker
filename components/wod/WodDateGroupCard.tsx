@@ -14,7 +14,13 @@ import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { debounce } from 'es-toolkit/compat';
 import React from 'react';
-import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  FadeIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { WodCard } from './WodCard';
 
 type Props = {
@@ -28,6 +34,7 @@ const EngNames = {
   아차산: 'ACHASAN.',
   기타: 'ETC.',
 };
+const MIN_ITEM_HEIGHT = 165;
 
 export function WodDateGroupCard({ wodItem }: Props) {
   const [imageRatio, setImageRatio] = React.useState(0);
@@ -60,16 +67,29 @@ export function WodDateGroupCard({ wodItem }: Props) {
       }
     );
   }, [wodItem.imageUrl]);
+  const itemHeightsRef = React.useRef<Record<number, number>>({});
+  const activeItemHeight = useSharedValue(MIN_ITEM_HEIGHT);
+  const heightAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      height: activeItemHeight.value
+        ? activeItemHeight.value + 12 + 12
+        : undefined,
+    };
+  });
 
   React.useEffect(() => {
     const idx = names.findIndex((n) => n === perferBranch);
     if (idx >= 0) {
       setActiveIndex(idx);
+      if (itemHeightsRef.current[idx]) {
+        activeItemHeight.value = withTiming(itemHeightsRef.current[idx], {
+          duration: 240,
+          easing: Easing.out(Easing.cubic),
+        });
+      }
       flatListRef.current?.scrollToIndex({ index: idx, animated: true });
     }
-  }, [perferBranch, names]);
-
-  const itemHeightsRef = React.useRef<Record<number, number>>({});
+  }, [perferBranch, names, activeItemHeight]);
 
   const debouncedSetActiveIndex = debounce((idx: number) => {
     setActiveIndex(idx);
@@ -81,17 +101,17 @@ export function WodDateGroupCard({ wodItem }: Props) {
       if (first && typeof first.index === 'number') {
         // console.log('onViewableItemsChanged', first.index);
         debouncedSetActiveIndex(first.index);
-        setListHeight(itemHeightsRef.current[first.index]);
+        const h = itemHeightsRef.current[first.index] ?? 0;
+        activeItemHeight.value = withTiming(h, {
+          duration: 240,
+          easing: Easing.out(Easing.cubic),
+        });
       }
     }
   ).current;
   const viewabilityConfig = React.useRef({
     itemVisiblePercentThreshold: 60,
   }).current;
-
-  const [listHeight, setListHeight] = React.useState<number | undefined>(
-    undefined
-  );
 
   return (
     <View
@@ -213,10 +233,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
             })}
           </View>
 
-          <Animated.View
-            layout={LinearTransition}
-            style={{ height: (listHeight || 0) + 12 + 12 }}
-          >
+          <Animated.View style={heightAnimatedStyle}>
             <FlatList
               nestedScrollEnabled
               style={{ marginHorizontal: -12 }}
