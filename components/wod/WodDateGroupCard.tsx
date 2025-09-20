@@ -118,14 +118,10 @@ export function WodDateGroupCard({ wodItem }: Props) {
             <TouchableOpacity
               activeOpacity={0.9}
               style={{ flex: 1 }}
-              ref={imageTouchableRef}
-              onPress={(e) => {
+              onPress={() => {
                 if (!wodItem.imageUrl) return;
-                imageTouchableRef.current?.measureInWindow?.((x, y, w, h) => {
-                  openImageViewer({
-                    url: wodItem.imageUrl!,
-                    origin: { x, y, width: w, height: h },
-                  });
+                openImageViewer({
+                  url: wodItem.imageUrl!,
                 });
               }}
             >
