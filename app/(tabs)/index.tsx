@@ -30,13 +30,16 @@ export const {
 });
 
 export default function HomeScreen() {
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
   const flatListRef = useRef<FlatList<WodItem>>(null);
 
   useEffect(() => {
     updateGlobalRefetchWods(refetch);
   }, [refetch]);
+
+  const insetBottom = Platform.OS === 'ios' ? 24 : bottom + 8;
+  const bottomTabHeight = insetBottom + 52;
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
@@ -89,6 +92,7 @@ export default function HomeScreen() {
           contentContainerStyle={{
             paddingVertical: 8,
             paddingHorizontal: 2,
+            paddingBottom: bottomTabHeight + 8,
             gap: 12,
           }}
           data={data?.wodItems || []}
