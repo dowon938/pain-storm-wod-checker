@@ -1,8 +1,8 @@
 import { WodItem } from '@/lib/schemas';
 import { Image } from 'expo-image';
 import {
-  FlatList,
   Image as RNImage,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,7 +16,6 @@ import {
 } from '@/components/wod/BranchSelector';
 import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
-import { debounce } from 'es-toolkit/compat';
 import React from 'react';
 import Animated, {
   Easing,
@@ -43,13 +42,14 @@ const MIN_ITEM_HEIGHT = 165;
 export function WodDateGroupCard({ wodItem }: Props) {
   const [imageRatio, setImageRatio] = React.useState(0);
   const { width } = useWindowDimensions();
-  const flatListRef = React.useRef<FlatList<any>>(null);
+  const scrollRef = React.useRef<ScrollView>(null);
   const perferBranch = useWatchPerferBranch();
   const isAllAtOnce = perferBranch === PerferBranch.ALL_AT_ONCE;
 
   const itemSpacing = 12;
   const horizontalPadding = 12;
   const cardWidth = width - horizontalPadding * 2;
+  const pageWidth = cardWidth + itemSpacing;
 
   const names = React.useMemo(
     () => wodItem.wods.map((w) => w.name),
@@ -92,32 +92,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
         //브랜치 설정바뀔때 withTiming 호출시 부하가 커서 제거
         activeItemHeight.value = itemHeightsRef.current[idx];
       }
-      flatListRef.current?.scrollToIndex({ index: idx, animated: true });
+      scrollRef.current?.scrollTo({ x: idx * pageWidth, y: 0, animated: true });
     }
-  }, [perferBranch, names, activeItemHeight]);
-
-  const debouncedSetActiveIndex = debounce((idx: number) => {
-    setActiveIndex(idx);
-  }, 300);
-
-  const onViewableItemsChanged = React.useRef(
-    ({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
-      const first = viewableItems.find((v) => v.index != null);
-      if (first && typeof first.index === 'number') {
-        // console.log('onViewableItemsChanged', first.index);
-        hapticLight();
-        debouncedSetActiveIndex(first.index);
-        const h = itemHeightsRef.current[first.index] ?? 0;
-        activeItemHeight.value = withTiming(h, {
-          duration: 240,
-          easing: Easing.out(Easing.cubic),
-        });
-      }
-    }
-  ).current;
-  const viewabilityConfig = React.useRef({
-    itemVisiblePercentThreshold: 60,
-  }).current;
+  }, [perferBranch, names, activeItemHeight, pageWidth]);
 
   return (
     <View
@@ -214,8 +191,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
                     onPress={() => {
                       hapticLight();
                       setActiveIndex(idx);
-                      flatListRef.current?.scrollToIndex({
-                        index: idx,
+                      scrollRef.current?.scrollTo({
+                        x: idx * pageWidth,
+                        y: 0,
                         animated: true,
                       });
                     }}
@@ -263,50 +241,54 @@ export function WodDateGroupCard({ wodItem }: Props) {
             </View>
           ) : (
             <Animated.View style={heightAnimatedStyle}>
-              <FlatList
-                nestedScrollEnabled
-                style={{ marginHorizontal: -12 }}
-                ref={flatListRef}
-                data={wodItem.wods}
-                keyExtractor={(item, idx) => `${item.name}-${idx}`}
+              <ScrollView
+                ref={scrollRef}
                 horizontal
+                nestedScrollEnabled
                 showsHorizontalScrollIndicator={false}
                 snapToAlignment='start'
                 decelerationRate='fast'
-                snapToInterval={cardWidth + itemSpacing}
-                getItemLayout={(_, index) => ({
-                  length: cardWidth + itemSpacing,
-                  offset: (cardWidth + itemSpacing) * index,
-                  index,
-                })}
-                initialScrollIndex={initialIndex}
-                onScrollToIndexFailed={(info) => {
-                  setTimeout(() => {
-                    flatListRef.current?.scrollToIndex({
-                      index: info.index,
-                      animated: false,
-                    });
-                  }, 0);
-                }}
+                snapToInterval={pageWidth}
+                style={{ marginHorizontal: -12 }}
                 contentContainerStyle={{
                   paddingLeft: horizontalPadding,
                   paddingRight: horizontalPadding,
                 }}
-                ItemSeparatorComponent={() => (
-                  <View style={{ width: itemSpacing }} />
-                )}
-                renderItem={({ item, index }) => (
-                  <View style={{ width: cardWidth }}>
+                onLayout={() => {
+                  if (initialIndex > 0) {
+                    const x = initialIndex * pageWidth;
+                    scrollRef.current?.scrollTo({ x, y: 0, animated: false });
+                  }
+                }}
+                onMomentumScrollEnd={(e) => {
+                  const x = e.nativeEvent.contentOffset.x;
+                  const idx = Math.round(x / pageWidth);
+                  hapticLight();
+                  setActiveIndex(idx);
+                  const h = itemHeightsRef.current[idx] ?? 0;
+                  activeItemHeight.value = withTiming(h, {
+                    duration: 240,
+                    easing: Easing.out(Easing.cubic),
+                  });
+                }}
+              >
+                {wodItem.wods.map((item, index) => (
+                  <View
+                    key={`${item.name}-${index}`}
+                    style={{
+                      width: cardWidth,
+                      marginRight:
+                        index === wodItem.wods.length - 1 ? 0 : itemSpacing,
+                    }}
+                  >
                     <WodCard
                       wod={item}
                       itemHeightsRef={itemHeightsRef}
                       idx={index}
                     />
                   </View>
-                )}
-                viewabilityConfig={viewabilityConfig}
-                onViewableItemsChanged={onViewableItemsChanged}
-              />
+                ))}
+              </ScrollView>
             </Animated.View>
           )}
           {isAllAtOnce ? null : (
@@ -326,8 +308,9 @@ export function WodDateGroupCard({ wodItem }: Props) {
                   onPress={() => {
                     hapticLight();
                     setActiveIndex(index);
-                    flatListRef.current?.scrollToIndex({
-                      index,
+                    scrollRef.current?.scrollTo({
+                      x: index * pageWidth,
+                      y: 0,
                       animated: true,
                     });
                   }}
