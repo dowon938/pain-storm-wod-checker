@@ -2,18 +2,15 @@ import { createStore } from '@/lib/create-auto-store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import React from 'react';
-import {
-  Dimensions,
-  Modal,
-  Pressable,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { MMKV } from 'react-native-mmkv';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const storage = new MMKV();
 const PREF_PERFER_BRANCH = 'perferBranch';
+
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 enum PerferBranch {
   ALL = 'ALL',
@@ -51,12 +48,15 @@ const BranchSelector = () => {
   const currentLabel =
     options.find((o) => o.value === perferBranch)?.label ?? '전체';
 
-  const windowWidth = Dimensions.get('window').width;
   const MENU_MIN_WIDTH = 112;
 
   return (
     <>
-      <TouchableOpacity
+      <AnimatedTouchableOpacity
+        layout={LinearTransition.springify()
+          .stiffness(150)
+          .damping(10)
+          .duration(800)}
         ref={buttonRef}
         onPress={() => {
           buttonRef.current?.measureInWindow?.((x, y, width, height) => {
@@ -84,7 +84,7 @@ const BranchSelector = () => {
           {currentLabel}
         </Text>
         <FontAwesome6 name='angle-down' size={12} color='white' />
-      </TouchableOpacity>
+      </AnimatedTouchableOpacity>
       <Modal
         visible={open}
         transparent
@@ -101,12 +101,7 @@ const BranchSelector = () => {
               top: anchor
                 ? Math.max(insets.top + 8, anchor.y + anchor.height + 6)
                 : insets.top + 20,
-              left: anchor
-                ? Math.min(
-                    Math.max(anchor.x + anchor.width - MENU_MIN_WIDTH / 2, 8),
-                    windowWidth - 8 - MENU_MIN_WIDTH
-                  )
-                : undefined,
+              left: anchor ? anchor.x : undefined,
               right: anchor ? undefined : 8,
               backgroundColor: 'white',
               borderRadius: 12,
