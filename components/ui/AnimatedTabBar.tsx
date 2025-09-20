@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 52,
-    width: '80%',
-    borderRadius: 22,
+    width: '70%',
+    borderRadius: 26,
     overflow: 'hidden',
     borderWidth: 0.5,
     backgroundColor: 'black',
@@ -150,12 +150,12 @@ const styles = StyleSheet.create({
   },
   indicator: {
     position: 'absolute',
-    top: 6,
-    bottom: 6,
-    left: 6,
+    top: 5,
+    bottom: 5,
+    left: 5,
     backgroundColor: 'white',
     // backgroundColor: '#363636',
-    borderRadius: 18,
+    borderRadius: 26,
   },
 });
 
