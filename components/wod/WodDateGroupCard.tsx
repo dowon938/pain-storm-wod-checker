@@ -79,7 +79,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
       height: isAllAtOnce
         ? undefined
         : activeItemHeight.value
-        ? activeItemHeight.value + 12 + 12
+        ? activeItemHeight.value + 12 + 12 + 8
         : undefined,
     };
   });
@@ -93,11 +93,6 @@ export function WodDateGroupCard({ wodItem }: Props) {
         activeItemHeight.value = itemHeightsRef.current[idx];
       }
       flatListRef.current?.scrollToIndex({ index: idx, animated: true });
-    } else {
-      activeItemHeight.value = Object.values(itemHeightsRef.current).reduce(
-        (acc, curr) => acc + (curr ?? 0),
-        0
-      );
     }
   }, [perferBranch, names, activeItemHeight]);
 
@@ -128,7 +123,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
     <View
       style={{
         backgroundColor: 'rgba(254, 250, 246, 0.95)',
-        borderRadius: 24,
+        borderRadius: 32,
         overflow: 'hidden',
       }}
     >
@@ -209,7 +204,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
         </Animated.View>
         <View style={{ padding: 12, paddingBottom: 0 }}>
           {isAllAtOnce ? null : (
-            <View style={{ flexDirection: 'row', gap: 6 }}>
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: -4 }}>
               {names.map((name, idx) => {
                 const selected = idx === activeIndex;
                 return (
@@ -313,6 +308,44 @@ export function WodDateGroupCard({ wodItem }: Props) {
                 onViewableItemsChanged={onViewableItemsChanged}
               />
             </Animated.View>
+          )}
+          {isAllAtOnce ? null : (
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: 6,
+                alignSelf: 'center',
+                position: 'absolute',
+                bottom: 10,
+              }}
+            >
+              {Array.from({ length: wodItem.wods.length }).map((_, index) => (
+                <TouchableOpacity
+                  key={`indicator-${index}`}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    hapticLight();
+                    setActiveIndex(index);
+                    flatListRef.current?.scrollToIndex({
+                      index,
+                      animated: true,
+                    });
+                  }}
+                  style={{
+                    width: 12,
+                    height: 5,
+                    backgroundColor:
+                      index === activeIndex
+                        ? 'rgba(0,0,0,0.8)'
+                        : 'rgba(255,255,255,1)',
+                    // : 'transparent',
+                    borderRadius: 10,
+                    // borderWidth: 1,
+                    // borderColor: 'rgba(0,0,0,0.1)',
+                  }}
+                />
+              ))}
+            </View>
           )}
         </View>
       </View>
