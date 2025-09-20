@@ -67,16 +67,17 @@ const BranchSelector = () => {
         hitSlop={12}
         style={{
           marginLeft: 8,
+          marginTop: 1,
           backgroundColor: 'black',
           paddingHorizontal: 9,
           paddingVertical: 5,
-          paddingRight: 6,
-          borderWidth: 0.5,
+          paddingRight: 7,
+          borderWidth: 1,
           borderColor: 'white',
           borderRadius: 20,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 4,
+          gap: 3,
         }}
         activeOpacity={0.7}
       >
