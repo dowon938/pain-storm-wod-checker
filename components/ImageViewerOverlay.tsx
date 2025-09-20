@@ -127,8 +127,9 @@ export default function ImageViewerOverlay() {
             }}
           >
             <Image
-              style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+              style={{ width: '100%', height: '100%' }}
               source={{ uri: url }}
+              contentFit='contain'
             />
           </ReactNativeZoomableView>
         </View>

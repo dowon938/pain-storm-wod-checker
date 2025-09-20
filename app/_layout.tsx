@@ -62,7 +62,7 @@ export default HotUpdater.wrap({
       <Image
         source={require('../assets/images/splash-icon.png')}
         style={{ width: 200, height: 200 }}
-        resizeMode='contain'
+        contentFit='contain'
       />
       <Text
         style={{
