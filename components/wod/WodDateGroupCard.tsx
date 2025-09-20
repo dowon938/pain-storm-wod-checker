@@ -50,6 +50,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
   const horizontalPadding = 12;
   const cardWidth = width - horizontalPadding * 2;
   const pageWidth = cardWidth + itemSpacing;
+  const didSetInitialScrollRef = React.useRef(false);
 
   const names = React.useMemo(
     () => wodItem.wods.map((w) => w.name),
@@ -255,6 +256,8 @@ export function WodDateGroupCard({ wodItem }: Props) {
                   paddingRight: horizontalPadding,
                 }}
                 onLayout={() => {
+                  if (didSetInitialScrollRef.current) return;
+                  didSetInitialScrollRef.current = true;
                   if (initialIndex > 0) {
                     const x = initialIndex * pageWidth;
                     scrollRef.current?.scrollTo({ x, y: 0, animated: false });
