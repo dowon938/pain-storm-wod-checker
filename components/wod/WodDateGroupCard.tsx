@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useWatchPerferBranch } from '@/components/wod/BranchSelector';
+import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { debounce } from 'es-toolkit/compat';
 import React from 'react';
@@ -98,6 +99,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
       const first = viewableItems.find((v) => v.index != null);
       if (first && typeof first.index === 'number') {
         // console.log('onViewableItemsChanged', first.index);
+        hapticLight();
         debouncedSetActiveIndex(first.index);
         const h = itemHeightsRef.current[first.index] ?? 0;
         activeItemHeight.value = withTiming(h, {
@@ -142,6 +144,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
               style={{ flex: 1 }}
               onPress={() => {
                 if (!wodItem.imageUrl) return;
+                hapticLight();
                 openImageViewer({
                   url: wodItem.imageUrl!,
                 });

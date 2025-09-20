@@ -1,3 +1,4 @@
+import { hapticLight } from '@/hooks/haptic';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
@@ -41,6 +42,7 @@ export default function AnimatedTabBar({
       target: routeKey,
       canPreventDefault: true,
     });
+    hapticLight();
     if (!event.defaultPrevented) {
       navigation.navigate(routeName as never);
     }

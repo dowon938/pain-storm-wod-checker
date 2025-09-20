@@ -1,3 +1,4 @@
+import { hapticLight } from '@/hooks/haptic';
 import { createStore } from '@/lib/create-auto-store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -38,7 +39,7 @@ const BranchSelector = () => {
   const perferBranch = useWatchPerferBranch();
 
   const options: { label: string; value: PerferBranch }[] = [
-    { label: '전체', value: PerferBranch.ALL },
+    { label: '기본순', value: PerferBranch.ALL },
     { label: '압구정', value: PerferBranch.APGUJEONG },
     { label: '잠실', value: PerferBranch.JAMSIL },
     { label: '수원', value: PerferBranch.SUWON },
@@ -60,11 +61,12 @@ const BranchSelector = () => {
         ref={buttonRef}
         onPress={() => {
           buttonRef.current?.measureInWindow?.((x, y, width, height) => {
+            hapticLight();
             setAnchor({ x, y, width, height });
             setOpen(true);
           });
         }}
-        hitSlop={12}
+        hitSlop={16}
         style={{
           marginLeft: 8,
           marginTop: 1,
@@ -93,7 +95,7 @@ const BranchSelector = () => {
         onRequestClose={() => setOpen(false)}
       >
         <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)' }}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.25)' }}
           onPress={() => setOpen(false)}
         >
           <View
@@ -132,6 +134,7 @@ const BranchSelector = () => {
                   key={opt.value}
                   activeOpacity={0.7}
                   onPress={() => {
+                    hapticLight();
                     updatePerferBranch(opt.value);
                     storage.set(PREF_PERFER_BRANCH, opt.value);
                     setOpen(false);

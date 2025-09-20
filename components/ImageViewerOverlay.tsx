@@ -1,3 +1,4 @@
+import { hapticLight } from '@/hooks/haptic';
 import {
   closeImageViewer,
   useWatchImageUrl,
@@ -26,12 +27,14 @@ export default function ImageViewerOverlay() {
   const [saveDone, setSaveDone] = React.useState<'ok' | 'fail' | undefined>();
 
   const onDismiss = () => {
+    hapticLight();
     closeImageViewer();
   };
 
   const onSave = async (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (!url) return;
+    hapticLight();
     try {
       setSaving(true);
       setSaveDone(undefined);
@@ -78,28 +81,28 @@ export default function ImageViewerOverlay() {
             <Pressable
               onPress={onDismiss}
               style={{
-                height: 36,
-                paddingHorizontal: 14,
+                height: 40,
+                paddingHorizontal: 16,
                 borderRadius: 999,
-                backgroundColor: 'rgba(255,255,255,0.12)',
+                backgroundColor: 'rgba(255,255,255,0.18)',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontSize: 14 }}>닫기</Text>
+              <Text style={{ color: 'white', fontSize: 15 }}>닫기</Text>
             </Pressable>
             <Pressable
               onPress={onSave}
               style={{
-                height: 36,
-                paddingHorizontal: 14,
+                height: 40,
+                paddingHorizontal: 16,
                 borderRadius: 999,
-                backgroundColor: 'rgba(255,255,255,0.12)',
+                backgroundColor: 'rgba(255,255,255,0.18)',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontSize: 14 }}>
+              <Text style={{ color: 'white', fontSize: 15 }}>
                 {saving ? '저장중…' : '다운로드'}
               </Text>
             </Pressable>

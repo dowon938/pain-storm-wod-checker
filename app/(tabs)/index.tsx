@@ -44,7 +44,7 @@ export default function HomeScreen() {
         style={{
           padding: 12,
           paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 8 : -10),
-          paddingBottom: 10,
+          paddingBottom: 6,
           flexDirection: 'row',
           // justifyContent: 'space-between',
           alignItems: 'center',
