@@ -1,9 +1,6 @@
 import { WodItem } from '@/lib/schemas';
-import { Image } from 'expo-image';
 import {
-  Image as RNImage,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -15,32 +12,26 @@ import {
   useWatchPerferBranch,
 } from '@/components/wod/BranchSelector';
 import { hapticLight } from '@/hooks/haptic';
-import { openImageViewer } from '@/hooks/useImageViewer';
 import React from 'react';
 import Animated, {
   Easing,
-  FadeIn,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { WodCard } from './WodCard';
+import WodCard from './WodCard';
+import WodImageCard from './WodImageCard';
 
 type Props = {
   wodItem: WodItem;
 };
 
-const EngNames = {
-  압구정: 'APGUJEONG.',
-  잠실: 'JAMSIL.',
-  수원: 'SUWON.',
-  아차산: 'ACHASAN.',
-  기타: 'ETC.',
-};
 const MIN_ITEM_HEIGHT = 165;
 
 export function WodDateGroupCard({ wodItem }: Props) {
-  const [imageRatio, setImageRatio] = React.useState(0);
+  const countRef = React.useRef(0);
+  countRef.current++;
+  console.log('WodDateGroupCard', countRef.current);
   const { width } = useWindowDimensions();
   const scrollRef = React.useRef<ScrollView>(null);
   const perferBranch = useWatchPerferBranch();
@@ -62,18 +53,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
     return idx >= 0 ? idx : 0;
   }, [names, perferBranch]);
   const [activeIndex, setActiveIndex] = React.useState(initialIndex);
-  React.useEffect(() => {
-    if (!wodItem.imageUrl) return;
-    RNImage.getSize(
-      wodItem.imageUrl,
-      (width, height) => {
-        setImageRatio(Math.max(width / height, 1.2));
-      },
-      (error) => {
-        console.error('이미지 로드 실패:', error);
-      }
-    );
-  }, [wodItem.imageUrl]);
+
   const itemHeightsRef = React.useRef<Record<number, number>>({});
   const activeItemHeight = useSharedValue(MIN_ITEM_HEIGHT);
   const heightAnimatedStyle = useAnimatedStyle(() => {
@@ -107,80 +87,7 @@ export function WodDateGroupCard({ wodItem }: Props) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Animated.View
-          entering={FadeIn}
-          style={{
-            width: '100%',
-            height: imageRatio ? width / imageRatio - 20 : 68,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          }}
-        >
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-          >
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={{ flex: 1 }}
-              onPress={() => {
-                if (!wodItem.imageUrl) return;
-                hapticLight();
-                openImageViewer({
-                  url: wodItem.imageUrl!,
-                });
-              }}
-            >
-              <Animated.View
-                sharedTransitionTag={wodItem.imageUrl}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                }}
-              >
-                <Image
-                  source={{ uri: wodItem.imageUrl }}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: '#f3f4f6',
-                  }}
-                  contentFit='cover'
-                />
-              </Animated.View>
-            </TouchableOpacity>
-          </View>
-          <Text
-            style={[
-              styles.titleText,
-              {
-                top: 16,
-                left: 16,
-                opacity: 0.8,
-                textShadowColor: 'rgba(0, 0, 0, 0.7)',
-              },
-            ]}
-          >
-            {wodItem.title.replace(' ', '\n')}
-          </Text>
-          <Text
-            style={[styles.titleText, { bottom: 8, right: 16, opacity: 0.45 }]}
-          >
-            {EngNames[wodItem.wods[0].name as keyof typeof EngNames] ??
-              wodItem.wods[0].name ??
-              ''}
-          </Text>
-        </Animated.View>
+        <WodImageCard wodItem={wodItem} />
         <View style={{ padding: 12, paddingBottom: 0 }}>
           {isAllAtOnce ? null : (
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: -4 }}>
@@ -361,16 +268,3 @@ export function WodDateGroupCard({ wodItem }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleText: {
-    fontSize: 24,
-    position: 'absolute',
-    color: 'rgba(255, 255, 255, 1)',
-    textShadowColor: 'rgba(0, 0, 0, 0.8)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-    fontFamily: 'Heavitas',
-    opacity: 1,
-  },
-});

@@ -1,5 +1,5 @@
 import { Wod } from '@/lib/schemas';
-import React from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 
 type Props = {
@@ -9,12 +9,8 @@ type Props = {
   isAllAtOnce?: boolean;
 };
 
-export function WodCard({
-  wod,
-  itemHeightsRef,
-  idx,
-  isAllAtOnce = false,
-}: Props) {
+function WodCard({ wod, itemHeightsRef, idx, isAllAtOnce = false }: Props) {
+  console.log('WodCard');
   return (
     <View
       style={{
@@ -59,3 +55,5 @@ export function WodCard({
     </View>
   );
 }
+
+export default memo(WodCard);

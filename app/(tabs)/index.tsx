@@ -1,15 +1,14 @@
+import LogoHeader from '@/components/ui/LogoHeader';
 import BranchSelector from '@/components/wod/BranchSelector';
 import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
 import { createStore } from '@/lib/create-auto-store';
 import { WodItem } from '@/lib/schemas';
-import { Image } from 'expo-image';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Platform,
-  Pressable,
   RefreshControl,
   Text,
   View,
@@ -18,8 +17,6 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-
-const LogoMultiplier = 0.95;
 
 export const {
   readGlobalRefetchWods,
@@ -30,7 +27,7 @@ export const {
 });
 
 export default function HomeScreen() {
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   const { data, isLoading, isRefetching, refetch, error } = useWods();
   const flatListRef = useRef<FlatList<WodItem>>(null);
 
@@ -41,29 +38,21 @@ export default function HomeScreen() {
   const insetBottom = Platform.OS === 'ios' ? 24 : bottom + 8;
   const bottomTabHeight = insetBottom + 52;
 
+  const onPressScrollTop = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: WodItem }) => <WodDateGroupCard wodItem={item} />,
+    []
+  );
+  const keyExtractor = useCallback((item: WodItem) => item.id, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={[]}>
-      <Pressable
-        style={{
-          padding: 12,
-          paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 8 : -10),
-          paddingBottom: 6,
-          flexDirection: 'row',
-          // justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-        onPress={() => {
-          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-        }}
-      >
-        <Image
-          source={require('@/assets/images/header-logo-2.png')}
-          style={{ width: 208 * LogoMultiplier, height: 28 * LogoMultiplier }}
-          contentFit='contain'
-          transition={150}
-        />
+      <LogoHeader onPress={onPressScrollTop}>
         <BranchSelector />
-      </Pressable>
+      </LogoHeader>
       {isLoading ? (
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
@@ -96,8 +85,12 @@ export default function HomeScreen() {
             gap: 12,
           }}
           data={data?.wodItems || []}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <WodDateGroupCard wodItem={item} />}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          initialNumToRender={4}
+          windowSize={8}
+          maxToRenderPerBatch={8}
+          // updateCellsBatchingPeriod={50}
           refreshControl={
             <RefreshControl refreshing={!!isRefetching} onRefresh={refetch} />
           }
