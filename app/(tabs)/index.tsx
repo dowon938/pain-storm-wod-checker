@@ -1,6 +1,6 @@
 import LogoHeader from '@/components/ui/LogoHeader';
 import BranchSelector from '@/components/wod/BranchSelector';
-import { WodDateGroupCard } from '@/components/wod/WodDateGroupCard';
+import WodDateGroupCard from '@/components/wod/WodDateGroupCard';
 import { useWods } from '@/hooks/useWod';
 import { createStore } from '@/lib/create-auto-store';
 import { WodItem } from '@/lib/schemas';

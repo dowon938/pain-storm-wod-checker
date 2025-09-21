@@ -4,12 +4,21 @@ import { Text, View } from 'react-native';
 
 type Props = {
   wod: Wod;
-  itemHeightsRef: React.RefObject<Record<number, number>>;
   idx: number;
   isAllAtOnce?: boolean;
+  wodsLength?: number;
+  itemHeightsRef?: React.RefObject<Record<number, number>>;
+  setItemHeightsLoading?: (loading: boolean) => void;
 };
 
-function WodCard({ wod, itemHeightsRef, idx, isAllAtOnce = false }: Props) {
+function WodCard({
+  wod,
+  itemHeightsRef,
+  idx,
+  isAllAtOnce = false,
+  wodsLength,
+  setItemHeightsLoading,
+}: Props) {
   console.log('WodCard');
   return (
     <View
@@ -21,7 +30,15 @@ function WodCard({ wod, itemHeightsRef, idx, isAllAtOnce = false }: Props) {
         marginVertical: isAllAtOnce ? 0 : 12,
       }}
       onLayout={(e) => {
-        itemHeightsRef.current[idx] = e.nativeEvent.layout.height;
+        if (itemHeightsRef) {
+          itemHeightsRef.current[idx] = e.nativeEvent.layout.height;
+          if (
+            wodsLength &&
+            Object.keys(itemHeightsRef.current).length === wodsLength
+          ) {
+            setItemHeightsLoading?.(false);
+          }
+        }
       }}
     >
       <View

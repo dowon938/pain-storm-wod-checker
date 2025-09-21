@@ -1,5 +1,8 @@
 import { WodItem } from '@/lib/schemas';
 import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -22,27 +25,50 @@ import Animated, {
 import WodCard from './WodCard';
 import WodImageCard from './WodImageCard';
 
-type Props = {
+const MIN_ITEM_HEIGHT = 165;
+const ITEM_SPACING = 12;
+const HORIZONTAL_PADDING = 12;
+
+type AllAtOnceContentProps = {
   wodItem: WodItem;
+  cardWidth: number;
 };
 
-const MIN_ITEM_HEIGHT = 165;
+function AllAtOnceContent({ wodItem, cardWidth }: AllAtOnceContentProps) {
+  return (
+    <View style={{ gap: 12, marginBottom: 12 }}>
+      {wodItem.wods.map((item, index) => {
+        return (
+          <View
+            key={`atonce-${item.name}-${index}`}
+            style={{ width: cardWidth }}
+          >
+            <WodCard wod={item} idx={index} isAllAtOnce />
+          </View>
+        );
+      })}
+    </View>
+  );
+}
 
-export function WodDateGroupCard({ wodItem }: Props) {
-  const countRef = React.useRef(0);
-  countRef.current++;
-  console.log('WodDateGroupCard', countRef.current);
-  const { width } = useWindowDimensions();
+type PagedContentProps = {
+  wodItem: WodItem;
+  cardWidth: number;
+  pageWidth: number;
+  perferBranch: string;
+};
+
+function PagedContent({
+  wodItem,
+  cardWidth,
+  pageWidth,
+  perferBranch,
+}: PagedContentProps) {
   const scrollRef = React.useRef<ScrollView>(null);
-  const perferBranch = useWatchPerferBranch();
-  const isAllAtOnce = perferBranch === PerferBranch.ALL_AT_ONCE;
-
-  const itemSpacing = 12;
-  const horizontalPadding = 12;
-  const cardWidth = width - horizontalPadding * 2;
-  const pageWidth = cardWidth + itemSpacing;
   const didSetInitialScrollRef = React.useRef(false);
   const lastHapticIndexRef = React.useRef<number | null>(null);
+  const itemHeightsRef = React.useRef<Record<number, number>>({});
+  const [itemHeightsLoading, setItemHeightsLoading] = React.useState(true);
 
   const names = React.useMemo(
     () => wodItem.wods.map((w) => w.name),
@@ -54,29 +80,203 @@ export function WodDateGroupCard({ wodItem }: Props) {
   }, [names, perferBranch]);
   const [activeIndex, setActiveIndex] = React.useState(initialIndex);
 
-  const itemHeightsRef = React.useRef<Record<number, number>>({});
   const activeItemHeight = useSharedValue(MIN_ITEM_HEIGHT);
   const heightAnimatedStyle = useAnimatedStyle(() => {
     return {
-      height: isAllAtOnce
-        ? undefined
-        : activeItemHeight.value
+      height: activeItemHeight.value
         ? activeItemHeight.value + 12 + 12 + 8
         : undefined,
     };
   });
 
   React.useEffect(() => {
+    if (!didSetInitialScrollRef.current) return;
     const idx = names.findIndex((n) => n === perferBranch);
     if (idx >= 0) {
-      setActiveIndex(idx);
       if (itemHeightsRef.current[idx]) {
-        //브랜치 설정바뀔때 withTiming 호출시 부하가 커서 제거
         activeItemHeight.value = itemHeightsRef.current[idx];
       }
-      scrollRef.current?.scrollTo({ x: idx * pageWidth, y: 0, animated: true });
+      scrollRef.current?.scrollTo({
+        x: idx * pageWidth,
+        y: 0,
+        animated: true,
+      });
     }
-  }, [perferBranch, names, activeItemHeight, pageWidth]);
+  }, [perferBranch, names, activeItemHeight, pageWidth, itemHeightsRef]);
+
+  const setAnimationValueByPlatform = (h: number) => {
+    if (Platform.OS === 'ios') {
+      return withTiming(h, { duration: 240, easing: Easing.out(Easing.cubic) });
+    }
+    return h;
+  };
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const idx = Math.round(x / pageWidth);
+    if (
+      idx !== activeIndex &&
+      idx >= 0 &&
+      idx < wodItem.wods.length &&
+      lastHapticIndexRef.current !== idx
+    ) {
+      setActiveIndex(idx);
+      const h = itemHeightsRef.current[idx] ?? 0;
+      Platform.OS === 'ios' && hapticLight();
+      lastHapticIndexRef.current = idx;
+      activeItemHeight.value = setAnimationValueByPlatform(h);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!itemHeightsLoading) return;
+    if (didSetInitialScrollRef.current) return;
+    didSetInitialScrollRef.current = true;
+    setActiveIndex(initialIndex);
+    const x = initialIndex * pageWidth;
+    scrollRef.current?.scrollTo({ x, y: 0, animated: false });
+    setTimeout(() => {
+      activeItemHeight.value = setAnimationValueByPlatform(
+        itemHeightsRef.current[initialIndex] ?? 0
+      );
+    }, 250);
+  }, [activeItemHeight, initialIndex, itemHeightsLoading, pageWidth]);
+
+  return (
+    <>
+      <View style={{ flexDirection: 'row', gap: 6, marginBottom: -4 }}>
+        {names.map((name, idx) => {
+          const selected = idx === activeIndex;
+          return (
+            <TouchableOpacity
+              key={`${name}-${idx}`}
+              activeOpacity={0.8}
+              onPress={() => {
+                hapticLight();
+                scrollRef.current?.scrollTo({
+                  x: idx * pageWidth,
+                  y: 0,
+                  animated: true,
+                });
+              }}
+              hitSlop={4}
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderRadius: 999,
+                backgroundColor: selected ? 'black' : 'transparent',
+                borderWidth: 1,
+                borderColor: 'rgba(0,0,0,0.1)',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '600',
+                  color: selected ? 'white' : '#111827',
+                }}
+              >
+                {name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <Animated.View style={heightAnimatedStyle}>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          nestedScrollEnabled
+          showsHorizontalScrollIndicator={false}
+          snapToAlignment='start'
+          decelerationRate='fast'
+          snapToInterval={pageWidth}
+          style={{ marginHorizontal: -12 }}
+          contentContainerStyle={{ paddingHorizontal: HORIZONTAL_PADDING }}
+          onScroll={onScroll}
+          scrollEventThrottle={1000 / 5}
+          onMomentumScrollEnd={(e) => {
+            const x = e.nativeEvent.contentOffset.x;
+            const idx = Math.round(x / pageWidth);
+            if (idx !== activeIndex) {
+              setActiveIndex(idx);
+              const h = itemHeightsRef.current[idx] ?? 0;
+              activeItemHeight.value = setAnimationValueByPlatform(h);
+            }
+          }}
+        >
+          {wodItem.wods.map((item, index) => (
+            <View
+              key={`${item.name}-${index}`}
+              style={{
+                width: cardWidth,
+                marginRight:
+                  index === wodItem.wods.length - 1 ? 0 : ITEM_SPACING,
+              }}
+            >
+              <WodCard
+                wod={item}
+                idx={index}
+                wodsLength={wodItem.wods.length}
+                itemHeightsRef={itemHeightsRef}
+                setItemHeightsLoading={setItemHeightsLoading}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </Animated.View>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 6,
+          alignSelf: 'center',
+          position: 'absolute',
+          bottom: 10,
+        }}
+      >
+        {Array.from({ length: wodItem.wods.length }).map((_, index) => (
+          <TouchableOpacity
+            key={`indicator-${index}`}
+            activeOpacity={0.8}
+            hitSlop={{ top: 10, bottom: 10, left: 3, right: 3 }}
+            onPress={() => {
+              hapticLight();
+              scrollRef.current?.scrollTo({
+                x: index * pageWidth,
+                y: 0,
+                animated: true,
+              });
+            }}
+            style={{
+              width: 12,
+              height: 5,
+              backgroundColor:
+                index === activeIndex
+                  ? 'rgba(0,0,0,0.8)'
+                  : 'rgba(255,255,255,1)',
+              borderRadius: 10,
+            }}
+          />
+        ))}
+      </View>
+    </>
+  );
+}
+
+type Props = {
+  wodItem: WodItem;
+};
+
+function WodDateGroupCard({ wodItem }: Props) {
+  const countRef = React.useRef(0);
+  countRef.current++;
+  console.log('WodDateGroupCard', countRef.current);
+  const { width } = useWindowDimensions();
+  const perferBranch = useWatchPerferBranch();
+  const isAllAtOnce = perferBranch === PerferBranch.ALL_AT_ONCE;
+
+  const cardWidth = width - HORIZONTAL_PADDING * 2;
+  const pageWidth = cardWidth + ITEM_SPACING;
 
   return (
     <View
@@ -89,182 +289,20 @@ export function WodDateGroupCard({ wodItem }: Props) {
       <View style={{ flex: 1 }}>
         <WodImageCard wodItem={wodItem} />
         <View style={{ padding: 12, paddingBottom: 0 }}>
-          {isAllAtOnce ? null : (
-            <View style={{ flexDirection: 'row', gap: 6, marginBottom: -4 }}>
-              {names.map((name, idx) => {
-                const selected = idx === activeIndex;
-                return (
-                  <TouchableOpacity
-                    key={`${name}-${idx}`}
-                    activeOpacity={0.8}
-                    onPress={() => {
-                      hapticLight();
-                      setActiveIndex(idx);
-                      scrollRef.current?.scrollTo({
-                        x: idx * pageWidth,
-                        y: 0,
-                        animated: true,
-                      });
-                    }}
-                    hitSlop={4}
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 999,
-                      backgroundColor: selected ? 'black' : 'transparent',
-                      borderWidth: 1,
-                      borderColor: 'rgba(0,0,0,0.1)',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: '600',
-                        color: selected ? 'white' : '#111827',
-                      }}
-                    >
-                      {name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
           {isAllAtOnce ? (
-            <View style={{ gap: 12, marginBottom: 12 }}>
-              {wodItem.wods.map((item, index) => {
-                return (
-                  <View
-                    key={`atonce-${item.name}-${index}`}
-                    style={{ width: cardWidth }}
-                  >
-                    <WodCard
-                      wod={item}
-                      itemHeightsRef={itemHeightsRef}
-                      idx={index}
-                      isAllAtOnce={isAllAtOnce}
-                    />
-                  </View>
-                );
-              })}
-            </View>
+            <AllAtOnceContent wodItem={wodItem} cardWidth={cardWidth} />
           ) : (
-            <Animated.View style={heightAnimatedStyle}>
-              <ScrollView
-                ref={scrollRef}
-                horizontal
-                nestedScrollEnabled
-                showsHorizontalScrollIndicator={false}
-                snapToAlignment='start'
-                decelerationRate='fast'
-                snapToInterval={pageWidth}
-                style={{ marginHorizontal: -12 }}
-                contentContainerStyle={{
-                  paddingLeft: horizontalPadding,
-                  paddingRight: horizontalPadding,
-                }}
-                onLayout={() => {
-                  if (didSetInitialScrollRef.current) return;
-                  didSetInitialScrollRef.current = true;
-                  if (initialIndex > 0) {
-                    const x = initialIndex * pageWidth;
-                    scrollRef.current?.scrollTo({ x, y: 0, animated: false });
-                  }
-                }}
-                onScroll={(e) => {
-                  const x = e.nativeEvent.contentOffset.x;
-                  const idx = Math.round(x / pageWidth);
-                  if (
-                    idx !== activeIndex &&
-                    idx >= 0 &&
-                    idx < wodItem.wods.length
-                  ) {
-                    setActiveIndex(idx);
-                    const h = itemHeightsRef.current[idx] ?? 0;
-                    activeItemHeight.value = withTiming(h, {
-                      duration: 240,
-                      easing: Easing.out(Easing.cubic),
-                    });
-                    if (lastHapticIndexRef.current !== idx) {
-                      hapticLight();
-                      lastHapticIndexRef.current = idx;
-                    }
-                  }
-                }}
-                scrollEventThrottle={16 * 3}
-                onMomentumScrollEnd={(e) => {
-                  const x = e.nativeEvent.contentOffset.x;
-                  const idx = Math.round(x / pageWidth);
-                  if (idx !== activeIndex) {
-                    setActiveIndex(idx);
-                    const h = itemHeightsRef.current[idx] ?? 0;
-                    activeItemHeight.value = withTiming(h, {
-                      duration: 240,
-                      easing: Easing.out(Easing.cubic),
-                    });
-                  }
-                }}
-              >
-                {wodItem.wods.map((item, index) => (
-                  <View
-                    key={`${item.name}-${index}`}
-                    style={{
-                      width: cardWidth,
-                      marginRight:
-                        index === wodItem.wods.length - 1 ? 0 : itemSpacing,
-                    }}
-                  >
-                    <WodCard
-                      wod={item}
-                      itemHeightsRef={itemHeightsRef}
-                      idx={index}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            </Animated.View>
-          )}
-          {isAllAtOnce ? null : (
-            <View
-              style={{
-                flexDirection: 'row',
-                gap: 6,
-                alignSelf: 'center',
-                position: 'absolute',
-                bottom: 10,
-              }}
-            >
-              {Array.from({ length: wodItem.wods.length }).map((_, index) => (
-                <TouchableOpacity
-                  key={`indicator-${index}`}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    hapticLight();
-                    setActiveIndex(index);
-                    scrollRef.current?.scrollTo({
-                      x: index * pageWidth,
-                      y: 0,
-                      animated: true,
-                    });
-                  }}
-                  style={{
-                    width: 12,
-                    height: 5,
-                    backgroundColor:
-                      index === activeIndex
-                        ? 'rgba(0,0,0,0.8)'
-                        : 'rgba(255,255,255,1)',
-                    // : 'transparent',
-                    borderRadius: 10,
-                    // borderWidth: 1,
-                    // borderColor: 'rgba(0,0,0,0.1)',
-                  }}
-                />
-              ))}
-            </View>
+            <PagedContent
+              wodItem={wodItem}
+              cardWidth={cardWidth}
+              pageWidth={pageWidth}
+              perferBranch={perferBranch}
+            />
           )}
         </View>
       </View>
     </View>
   );
 }
+
+export default React.memo(WodDateGroupCard);
