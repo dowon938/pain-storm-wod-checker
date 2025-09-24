@@ -1,15 +1,17 @@
-import { DarkTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
-
 import ImageViewerOverlay from '@/components/ImageViewerOverlay';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import { setOptions } from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { LogBox } from 'react-native';
+import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 
 LogBox.ignoreAllLogs();
+
+setOptions({ fade: true, duration: 400 });
 
 function RootLayout() {
   const [loaded] = useFonts({

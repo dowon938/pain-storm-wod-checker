@@ -16,6 +16,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  View,
 } from 'react-native';
 import WebView from 'react-native-webview';
 import {
@@ -31,9 +32,17 @@ import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { isDevice } from 'expo-device';
 import { useNavigation } from 'expo-router';
-import Animated, { FadeOut } from 'react-native-reanimated';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import CommonKeyboardAvoiding from './CommonKeyboardAvoiding';
 import { IOSScrollToTop } from './IosScrollToTop';
+import SplashImageView from './SplashImageView';
+
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 const styles = StyleSheet.create({
   androidScrollView: {
@@ -128,6 +137,8 @@ const CommonWebview = ({
 
   const [loading, setLoading] = useState(true);
   const [topDimmingOn, setTopDimmingOn] = useState(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
+  const overlayOpacity = useSharedValue(1);
 
   const lastDeeplinkUrlRef = useRef<string | null>(null);
   const lastDeeplinkAtRef = useRef<number>(0);
@@ -229,6 +240,23 @@ const CommonWebview = ({
   const onContentProcessDidTerminate = useCallback(() => {
     webViewRef.current?.reload();
   }, []);
+
+  useEffect(() => {
+    if (loading) {
+      setShowLoadingOverlay(true);
+      overlayOpacity.value = 1;
+      return;
+    }
+    overlayOpacity.value = withTiming(0, { duration: 300 }, (finished) => {
+      if (finished) {
+        runOnJS(setShowLoadingOverlay)(false);
+      }
+    });
+  }, [loading, overlayOpacity]);
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => {
+    return { opacity: overlayOpacity.value };
+  });
 
   //onNavigationStateChange ios,android 동작 방식이 다른문제 해결. https://github.com/react-native-webview/react-native-webview/issues/24
   const getNavigationStateScript = useMemo(() => {
@@ -412,10 +440,17 @@ true;
               onScroll={handleScroll}
               onLoadProgress={onLoadProgress}
             />
-            {loading && CustomLoadingView && (
-              <Animated.View exiting={FadeOut} style={styles.progressWrapper}>
-                <CustomLoadingView />
-              </Animated.View>
+
+            {showLoadingOverlay && (
+              <AnimatedView
+                style={[styles.progressWrapper, overlayAnimatedStyle]}
+              >
+                {CustomLoadingView ? (
+                  <CustomLoadingView />
+                ) : (
+                  <SplashImageView />
+                )}
+              </AnimatedView>
             )}
           </ScrollView>
         </CommonKeyboardAvoiding>
@@ -433,10 +468,10 @@ true;
           onLoadProgress={onLoadProgress}
           pullToRefreshEnabled={pullToRefreshEnabled}
         />
-        {loading && CustomLoadingView && (
-          <Animated.View exiting={FadeOut} style={styles.progressWrapper}>
-            <CustomLoadingView />
-          </Animated.View>
+        {showLoadingOverlay && (
+          <AnimatedView style={[styles.progressWrapper, overlayAnimatedStyle]}>
+            {CustomLoadingView ? <CustomLoadingView /> : <SplashImageView />}
+          </AnimatedView>
         )}
       </IosWrapper>
       <IOSScrollToTop
