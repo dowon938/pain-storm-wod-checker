@@ -31,7 +31,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 }
 expoAutolinking.useExpoModules()
 
-rootProject.name = 'painstorm-wod-checker'
+rootProject.name = '페인스톰 WOD'
 
 expoAutolinking.useExpoVersionCatalog()
 

@@ -60,7 +60,7 @@ export default RootLayout;
 //       }}
 //     >
 //       <Image
-//         source={require('../assets/images/splash-icon.png')}
+//         source={require('../assets/images/splash-icon-3.png')}
 //         style={{ width: 200, height: 200 }}
 //         contentFit='contain'
 //       />

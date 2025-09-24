@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "painstorm-wod-checker",
+    "name": "페인스톰 WOD",
     "slug": "painstorm-wod-checker",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -39,7 +39,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon-3.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#000000"
