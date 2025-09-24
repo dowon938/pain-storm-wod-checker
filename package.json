@@ -44,6 +44,7 @@
     "expo-web-browser": "~14.2.0",
     "fast-xml-parser": "^5.2.5",
     "lodash": "^4.17.21",
+    "moti": "^0.30.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",
