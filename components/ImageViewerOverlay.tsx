@@ -5,6 +5,7 @@ import {
   useWatchVisible,
 } from '@/hooks/useImageViewer';
 import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
+import { BlurView } from 'expo-blur';
 import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
@@ -12,7 +13,9 @@ import React from 'react';
 import {
   GestureResponderEvent,
   Modal,
+  Platform,
   Pressable,
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -67,7 +70,21 @@ export default function ImageViewerOverlay() {
       onRequestClose={onDismiss}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.92)' }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor:
+              Platform.OS === 'ios' ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.95)',
+          }}
+        >
+          {Platform.OS === 'ios' && (
+            <BlurView
+              style={StyleSheet.absoluteFill}
+              intensity={40}
+              tint='dark'
+              pointerEvents='none'
+            />
+          )}
           <View
             style={{
               position: 'absolute',
