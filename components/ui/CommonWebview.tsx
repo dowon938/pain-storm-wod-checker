@@ -96,7 +96,7 @@ const CommonWebview = ({
     () => ({
       uri: `${
         testUrl ||
-        (Platform.OS === 'ios' && isDevice
+        (Platform.OS === 'ios' && !isDevice
           ? 'http://localhost:3000'
           : 'https://painstorm-nextjs.vercel.app')
       }${urlPath}`,
