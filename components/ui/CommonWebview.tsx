@@ -28,6 +28,7 @@ import {
 } from 'react-native-webview/lib/WebViewTypes';
 
 import { hapticLight } from '@/hooks/haptic';
+import { openImageViewer } from '@/hooks/useImageViewer';
 import { isDevice } from 'expo-device';
 import { useNavigation } from 'expo-router';
 import Animated, { FadeOut } from 'react-native-reanimated';
@@ -66,6 +67,7 @@ const parseJsonOnce = (text: string): any[] | null => {
 
 let testUrl: string | null = null;
 // testUrl = 'http://10.30.10.205:3000';
+// testUrl = 'https://painstorm-nextjs.vercel.app';
 
 const originWhitelist = ['*'];
 
@@ -294,6 +296,12 @@ true;
 
   const onShouldStartLoadWithRequest = useCallback(
     (event: ShouldStartLoadRequest) => {
+      if (
+        event.url.includes('painstorm-push-noti.dowon938.workers.dev/image?')
+      ) {
+        openImageViewer({ url: event.url });
+        return false;
+      }
       // console.log('onShouldStartLoadWithRequest\n', event.url, '\n');
       //임베디드된 위젯 아니고 트레이딩 뷰 url인경우 웹뷰로 띄워줌
       if (
