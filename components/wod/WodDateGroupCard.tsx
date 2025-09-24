@@ -56,6 +56,7 @@ type PagedContentProps = {
   cardWidth: number;
   pageWidth: number;
   perferBranch: string;
+  visibleIdsRef?: React.RefObject<Set<string>>;
 };
 
 function PagedContent({
@@ -63,6 +64,7 @@ function PagedContent({
   cardWidth,
   pageWidth,
   perferBranch,
+  visibleIdsRef,
 }: PagedContentProps) {
   const scrollRef = React.useRef<ScrollView>(null);
   const didSetInitialScrollRef = React.useRef(false);
@@ -99,10 +101,18 @@ function PagedContent({
       scrollRef.current?.scrollTo({
         x: idx * pageWidth,
         y: 0,
-        animated: true,
+        animated: visibleIdsRef?.current?.has(wodItem.id) ?? false,
       });
     }
-  }, [perferBranch, names, activeItemHeight, pageWidth, itemHeightsRef]);
+  }, [
+    perferBranch,
+    names,
+    activeItemHeight,
+    pageWidth,
+    itemHeightsRef,
+    visibleIdsRef,
+    wodItem.id,
+  ]);
 
   const setAnimationValueByPlatform = (h: number) => {
     if (Platform.OS === 'ios') {
@@ -265,9 +275,10 @@ function PagedContent({
 
 type Props = {
   wodItem: WodItem;
+  visibleIdsRef?: React.RefObject<Set<string>>;
 };
 
-function WodDateGroupCard({ wodItem }: Props) {
+function WodDateGroupCard({ wodItem, visibleIdsRef }: Props) {
   const countRef = React.useRef(0);
   countRef.current++;
   console.log('WodDateGroupCard', countRef.current);
@@ -297,6 +308,7 @@ function WodDateGroupCard({ wodItem }: Props) {
               cardWidth={cardWidth}
               pageWidth={pageWidth}
               perferBranch={perferBranch}
+              visibleIdsRef={visibleIdsRef}
             />
           )}
         </View>
