@@ -329,7 +329,8 @@ true;
         event.url.includes('map.naver.com/p/search/') ||
         event.url.includes('nmap://search?query') ||
         event.url.includes('m.map.kakao.com/scheme/search') ||
-        event.url.includes('kakaomap://search?q')
+        event.url.includes('kakaomap://search?q') ||
+        event.url.includes('tel:')
       ) {
         Linking.openURL(event.url);
         return false;
