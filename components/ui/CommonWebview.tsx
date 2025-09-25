@@ -12,6 +12,7 @@ import React, {
 import {
   BackHandler,
   InteractionManager,
+  Linking,
   Platform,
   RefreshControl,
   ScrollView,
@@ -325,22 +326,22 @@ true;
   const onShouldStartLoadWithRequest = useCallback(
     (event: ShouldStartLoadRequest) => {
       if (
+        event.url.includes('map.naver.com/p/search/') ||
+        event.url.includes('nmap://search?query') ||
+        event.url.includes('m.map.kakao.com/scheme/search') ||
+        event.url.includes('kakaomap://search?q')
+      ) {
+        Linking.openURL(event.url);
+        return false;
+      }
+      if (
         event.url.includes('painstorm-push-noti.dowon938.workers.dev/image?')
       ) {
         openImageViewer({ url: event.url });
         return false;
       }
-      // console.log('onShouldStartLoadWithRequest\n', event.url, '\n');
-      //임베디드된 위젯 아니고 트레이딩 뷰 url인경우 웹뷰로 띄워줌
-      if (
-        !event.url.includes('s.tradingview.com/widgetembed') &&
-        event.url.includes('tradingview')
-      ) {
-        // processURL({ url: event.url, navigation });
-        return false;
-      } else {
-        return true;
-      }
+
+      return true;
     },
     []
   );

@@ -3,7 +3,7 @@ import React from 'react';
 import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function HomeScreen() {
+export default function LocationScreen() {
   const { top } = useSafeAreaInsets();
   return (
     <View
@@ -12,7 +12,7 @@ export default function HomeScreen() {
         paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 8 : -10),
       }}
     >
-      <CommonWebview urlPath={'/'} />
+      <CommonWebview urlPath={'/location'} />
     </View>
   );
 }
