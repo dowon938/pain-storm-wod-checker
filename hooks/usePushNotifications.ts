@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Constants from 'expo-constants';
 
-import { readGlobalRefetchWods } from '@/app/(tabs)';
 import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
 import { useIsNavigationReady } from './useNavigationReady';
@@ -102,10 +101,9 @@ export const usePushNotifications = (): PushNotificationState => {
       switch (response?.notification?.request?.content?.data?.path) {
         case '/wods':
           router.navigate('/(tabs)');
-          setTimeout(() => readGlobalRefetchWods()?.(), 300);
           break;
-        case '/explore':
-          router.navigate('/(tabs)/explore');
+        case '/location':
+          router.navigate('/(tabs)/location');
           break;
         default:
           router.navigate('/(tabs)');
@@ -123,7 +121,6 @@ export const usePushNotifications = (): PushNotificationState => {
       Notifications.addNotificationReceivedListener((notification) => {
         // console.log('notification', notification);
         // setNotification(notification);
-        setTimeout(() => readGlobalRefetchWods()?.(), 300);
       });
     // 푸시가 클릭됐을떄
     responseListener.current =
