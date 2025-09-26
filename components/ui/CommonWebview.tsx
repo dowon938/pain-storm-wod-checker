@@ -213,6 +213,13 @@ const CommonWebview = ({
             case 'CONSOLE':
               if (__DEV__) console.log('CONSOLE', message?.params);
               break;
+            case 'IMAGE_VIEWER':
+              openImageViewer({
+                url: (message?.params as Record<string, any>)?.srcs as string[],
+                initialIndex: (message?.params as Record<string, any>)
+                  ?.initialIndex,
+              });
+              break;
             default:
               return;
           }

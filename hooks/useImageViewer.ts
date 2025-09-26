@@ -9,13 +9,15 @@ export type ImageViewerOrigin = {
 
 type ImageViewerState = {
   visible: boolean;
-  imageUrl?: string;
+  imageUrl?: string | string[];
   origin?: ImageViewerOrigin;
+  initialIndex?: number;
 };
 
 const store = createStore<ImageViewerState>({
   visible: false,
   imageUrl: undefined,
+  initialIndex: undefined,
 });
 
 export const readVisible = store.readVisible;
@@ -25,9 +27,19 @@ export const useWatchVisible = store.useWatchVisible;
 export const readImageUrl = store.readImageUrl;
 export const updateImageUrl = store.updateImageUrl;
 export const useWatchImageUrl = store.useWatchImageUrl;
+export const readInitialIndex = store.readInitialIndex;
+export const updateInitialIndex = store.updateInitialIndex;
+export const useWatchInitialIndex = store.useWatchInitialIndex;
 
-export function openImageViewer({ url = '' }) {
+export function openImageViewer({
+  url = '',
+  initialIndex,
+}: {
+  url?: string | string[];
+  initialIndex?: number;
+}) {
   updateImageUrl?.(url);
+  if (typeof initialIndex === 'number') updateInitialIndex?.(initialIndex);
   updateVisible(true);
 }
 

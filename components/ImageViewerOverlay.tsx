@@ -2,6 +2,7 @@ import { hapticLight } from '@/hooks/haptic';
 import {
   closeImageViewer,
   useWatchImageUrl,
+  useWatchInitialIndex,
   useWatchVisible,
 } from '@/hooks/useImageViewer';
 import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
@@ -20,23 +21,50 @@ import {
   View,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInLeft,
+  SlideInRight,
+} from 'react-native-reanimated';
 
 export default function ImageViewerOverlay() {
   const visible = useWatchVisible();
-  const url = (useWatchImageUrl as unknown as () => string | undefined)();
+  // 초기 인덱스 옵션 (스토어에서 관찰)
+  const initialIndex =
+    (useWatchInitialIndex as unknown as () => number | undefined)() ?? 0;
+  const url = (
+    useWatchImageUrl as unknown as () => string | string[] | undefined
+  )();
+
+  const images = React.useMemo(() => {
+    if (!url) return [] as string[];
+    return Array.isArray(url) ? url.filter(Boolean) : [url];
+  }, [url]);
+
+  const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
+  // URL 배열이 바뀌거나, 초기 인덱스가 바뀌면 다시 맞춰준다
+  React.useEffect(() => {
+    if (images.length === 0) return;
+    const clamped = Math.max(0, Math.min(images.length - 1, initialIndex));
+    setCurrentIndex(clamped);
+  }, [initialIndex, images.length]);
+  const [slideDir, setSlideDir] = React.useState<'initial' | 'left' | 'right'>(
+    'initial'
+  );
 
   const [saving, setSaving] = React.useState(false);
   const [saveDone, setSaveDone] = React.useState<'ok' | 'fail' | undefined>();
 
   const onDismiss = () => {
+    setSlideDir('initial');
     hapticLight();
     closeImageViewer();
   };
 
   const onSave = async (e: GestureResponderEvent) => {
     e.stopPropagation();
-    if (!url) return;
+    if (images.length === 0) return;
     hapticLight();
     try {
       setSaving(true);
@@ -44,8 +72,9 @@ export default function ImageViewerOverlay() {
       const perm = await MediaLibrary.requestPermissionsAsync();
       if (!perm.granted) throw new Error('permission_denied');
 
+      const targetUrl = images[currentIndex] ?? images[0];
       const fileUri = FileSystem.cacheDirectory + `image-${Date.now()}.jpg`;
-      const res = await FileSystem.downloadAsync(url, fileUri);
+      const res = await FileSystem.downloadAsync(targetUrl, fileUri);
       await MediaLibrary.saveToLibraryAsync(res.uri);
       setSaveDone('ok');
       setTimeout(() => setSaveDone(undefined), 1200);
@@ -57,7 +86,7 @@ export default function ImageViewerOverlay() {
     }
   };
 
-  if (!visible || !url) return null;
+  if (!visible || images.length === 0) return null;
 
   return (
     <Modal
@@ -95,6 +124,20 @@ export default function ImageViewerOverlay() {
               zIndex: 100,
             }}
           >
+            <View
+              style={{
+                paddingHorizontal: 12,
+                height: 40,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.18)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 15 }}>
+                {currentIndex + 1} / {images.length}
+              </Text>
+            </View>
             <Pressable
               onPress={onDismiss}
               style={{
@@ -134,20 +177,53 @@ export default function ImageViewerOverlay() {
             onPanResponderEnd={(_e, gesture, ev) => {
               const zoom = ev.zoomLevel;
               const isAtOne = Math.abs(zoom - 1) < 0.02; // tolerate float jitter
+              const { dx, dy, vx, vy } = gesture;
+              const horizontalSwipe =
+                isAtOne &&
+                Math.abs(dx) > 60 &&
+                Math.abs(vx) > 0.4 &&
+                Math.abs(dx) > Math.abs(dy);
               const verticalSwipe =
-                Math.abs(gesture.dy) > 60 &&
-                Math.abs(gesture.vy) > 0.6 &&
-                Math.abs(gesture.dy) > Math.abs(gesture.dx);
-              if (isAtOne && verticalSwipe) {
+                isAtOne &&
+                Math.abs(dy) > 60 &&
+                Math.abs(vy) > 0.6 &&
+                Math.abs(dy) > Math.abs(dx);
+
+              if (horizontalSwipe) {
+                if (dx < 0) {
+                  setSlideDir('right');
+                  setCurrentIndex(
+                    Math.min(images.length - 1, currentIndex + 1)
+                  );
+                } else if (dx > 0) {
+                  setSlideDir('left');
+                  setCurrentIndex(Math.max(0, currentIndex - 1));
+                }
+                return;
+              }
+
+              if (verticalSwipe) {
                 onDismiss();
               }
             }}
           >
-            <Image
+            <Animated.View
+              key={currentIndex}
+              entering={
+                slideDir === 'initial'
+                  ? FadeIn
+                  : slideDir === 'right'
+                  ? SlideInRight.duration(220)
+                  : SlideInLeft.duration(220)
+              }
               style={{ width: '100%', height: '100%' }}
-              source={{ uri: url }}
-              contentFit='contain'
-            />
+            >
+              <Image
+                style={{ width: '100%', height: '100%' }}
+                source={{ uri: images[currentIndex] }}
+                contentFit='contain'
+              />
+            </Animated.View>
           </ReactNativeZoomableView>
         </View>
         {saveDone && (
