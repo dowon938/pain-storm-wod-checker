@@ -356,12 +356,12 @@ true;
 
   const pullToRefreshEnabled = topDimmingOn ? false : pullToRefreshEnabledProp;
 
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      setReady(true);
-    });
-  }, []);
+  // const [ready, setReady] = useState(false);
+  // useEffect(() => {
+  //   InteractionManager.runAfterInteractions(() => {
+  //     setReady(true);
+  //   });
+  // }, []);
 
   const commonWebViewProps = useMemo(() => {
     return {
@@ -392,11 +392,13 @@ true;
       sharedCookiesEnabled: false,
       thirdPartyCookiesEnabled: false,
       domStorageEnabled: true,
-      cacheEnabled: ready,
+      // cacheEnabled: ready,
+      cacheEnabled: true,
       incognito: false,
-      cacheMode: ready
-        ? ('LOAD_CACHE_ELSE_NETWORK' as CacheMode)
-        : ('LOAD_NO_CACHE' as CacheMode),
+      cacheMode: 'LOAD_CACHE_ELSE_NETWORK' as CacheMode,
+      // cacheMode: ready
+      //   ? ('LOAD_CACHE_ELSE_NETWORK' as CacheMode)
+      //   : ('LOAD_NO_CACHE' as CacheMode),
       // ==========================
       mixedContentMode: 'always' as 'always', // android http 요청 허용
       // dataDetectorTypes: ['all'], // ios 전화번호, 이메일, 주소 등 자동 링크
@@ -416,7 +418,7 @@ true;
     onContentProcessDidTerminate,
     onShouldStartLoadWithRequest,
     pullToRefreshEnabled,
-    ready,
+    // ready,
     source,
   ]);
 
