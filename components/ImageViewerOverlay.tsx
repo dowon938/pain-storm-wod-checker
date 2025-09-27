@@ -12,6 +12,7 @@ import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import React from 'react';
 import {
+  ActivityIndicator,
   GestureResponderEvent,
   Modal,
   Platform,
@@ -85,6 +86,7 @@ export default function ImageViewerOverlay() {
       setSaving(false);
     }
   };
+  const [loading, setLoading] = React.useState(false);
 
   if (!visible || images.length === 0) return null;
 
@@ -221,8 +223,29 @@ export default function ImageViewerOverlay() {
               <Image
                 style={{ width: '100%', height: '100%' }}
                 source={{ uri: images[currentIndex] }}
+                onLoadStart={() => {
+                  setLoading(true);
+                }}
+                onLoadEnd={() => {
+                  setLoading(false);
+                }}
                 contentFit='contain'
               />
+              {loading && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <ActivityIndicator size='small' color='white' />
+                </View>
+              )}
             </Animated.View>
           </ReactNativeZoomableView>
         </View>
