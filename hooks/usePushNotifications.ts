@@ -6,17 +6,7 @@ import Constants from 'expo-constants';
 
 import { useRouter } from 'expo-router';
 import { Platform } from 'react-native';
-import { MMKV } from 'react-native-mmkv';
 import { useIsNavigationReady } from './useNavigationReady';
-
-const PREV_EXPO_PUSH_TOKEN = 'expoPushToken';
-const storage = new MMKV();
-const getPrevExpoPushToken = () => {
-  return storage.getString(PREV_EXPO_PUSH_TOKEN);
-};
-const setPrevExpoPushToken = (token: string) => {
-  storage.set(PREV_EXPO_PUSH_TOKEN, token);
-};
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken['data'];
@@ -123,6 +113,9 @@ export const usePushNotifications = (): PushNotificationState => {
   );
 
   useEffect(() => {
+    registerForPushNotificationsAsync().then((token) => {
+      token?.startsWith('ExponentPushToken[') && setExpoPushToken(token);
+    });
     // 푸시가 왔을떄
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
@@ -158,38 +151,24 @@ export const usePushNotifications = (): PushNotificationState => {
   }, [isNavigationReady, handleNotificationResponse, router]);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(async (token) => {
-      if (token?.startsWith('ExponentPushToken[')) {
-        setExpoPushToken(token);
-        if (getPrevExpoPushToken() === token) {
-          if (__DEV__) {
-            console.log('이미 푸시 토큰이 있습니다.', token);
-          }
-          return;
-        } else {
-          if (__DEV__) {
-            console.log('푸시 토큰이 변경되었습니다.', token);
-          }
-          setPrevExpoPushToken(token);
-          try {
-            // const res =
-            await fetch(
-              'https://painstorm-push-noti.dowon938.workers.dev/tokens',
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ expoToken: token }), // 또는 userId 생기면 실제 값
-              }
-            );
-            // const data = await res.json();
-            // console.log(data);
-          } catch (error) {
-            console.log('send token error', error);
-          }
-        }
+    if (!expoPushToken) return;
+    const fetchToken = async () => {
+      try {
+        // const res =
+        await fetch('https://painstorm-push-noti.dowon938.workers.dev/tokens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expoToken: expoPushToken }), // 또는 userId 생기면 실제 값
+        });
+        console.log(expoPushToken);
+        // const data = await res.json();
+        // console.log(data);
+      } catch (error) {
+        console.log('send token error', error);
       }
-    });
-  }, []);
+    };
+    fetchToken();
+  }, [expoPushToken]);
 
   return {
     expoPushToken: expoPushToken,
