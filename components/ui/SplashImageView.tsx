@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const SplashImageView = () => {
+const SplashImageView = ({ children }: { children?: React.ReactNode }) => {
   return (
     <View style={styles.container}>
       <Image
@@ -23,6 +23,7 @@ const SplashImageView = () => {
         style={styles.image}
         contentFit='contain'
       />
+      {children}
       {/* <Text
         style={{
           color: 'rgba(255,255,255,0.7)',
