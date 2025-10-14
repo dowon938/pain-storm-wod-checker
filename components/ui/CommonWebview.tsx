@@ -127,7 +127,11 @@ const CommonWebview = ({
         if (currentStateRef.current.canGoBack) {
           webViewRef?.current?.goBack();
         } else {
-          navigation.goBack();
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            BackHandler.exitApp();
+          }
         }
         return true;
       }
