@@ -18,6 +18,19 @@ export default function TabLayout() {
       tabBar={(props) => <AnimatedTabBar {...props} />}
     >
       <Tabs.Screen
+        name='records'
+        options={{
+          title: 'RECORDS',
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name='kettlebell'
+              size={24}
+              color={!focused ? 'white' : 'black'}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name='index'
         options={{
           title: 'WOD',

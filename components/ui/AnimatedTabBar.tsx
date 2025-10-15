@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 52,
-    width: '70%',
+    width: '88%',
     borderRadius: 26,
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
