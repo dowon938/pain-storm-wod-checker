@@ -58,7 +58,7 @@ export default function AnimatedTabBar({
     }
     indicatorX.value = withSpring(state.index, {
       stiffness: 450,
-      damping: 20,
+      damping: 19,
       mass: 0.4,
     });
   }, [indicatorX, state.index]);
