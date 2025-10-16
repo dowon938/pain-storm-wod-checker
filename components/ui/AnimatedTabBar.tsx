@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 52,
-    width: '88%',
+    width: '85%',
     borderRadius: 26,
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
@@ -255,7 +255,7 @@ const TabBarItem = React.memo(function TabBarItem({
           </>
         ) : null}
       </View>
-      <View style={{ marginLeft: label === 'LOCATION' ? -6 : -4 }}>
+      <View style={{ marginLeft: label === 'LOCATION' ? -8 : -6 }}>
         <Animated.Text
           style={[
             {
