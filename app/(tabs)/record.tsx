@@ -12,7 +12,7 @@ export default function LocationScreen() {
         paddingTop: top - (Platform.OS === 'ios' && top > 32 ? 8 : -10),
       }}
     >
-      <CommonWebview urlPath={'/records'} />
+      <CommonWebview urlPath={'/record'} />
     </View>
   );
 }

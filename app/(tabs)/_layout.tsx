@@ -18,9 +18,9 @@ export default function TabLayout() {
       tabBar={(props) => <AnimatedTabBar {...props} />}
     >
       <Tabs.Screen
-        name='records'
+        name='record'
         options={{
-          title: 'RECORDS',
+          title: 'RECORD',
           tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons
               name='kettlebell'
