@@ -105,13 +105,13 @@ export default function ImageViewerOverlay() {
           style={{
             flex: 1,
             backgroundColor:
-              Platform.OS === 'ios' ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.95)',
+              Platform.OS === 'ios' ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.95)',
           }}
         >
           {Platform.OS === 'ios' && (
             <BlurView
               style={StyleSheet.absoluteFill}
-              intensity={40}
+              intensity={30}
               tint='dark'
               pointerEvents='none'
             />
