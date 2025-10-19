@@ -194,12 +194,18 @@ export default function ImageViewerOverlay() {
               if (horizontalSwipe) {
                 if (dx < 0) {
                   setSlideDir('right');
-                  setCurrentIndex(
-                    Math.min(images.length - 1, currentIndex + 1)
-                  );
+                  if (currentIndex < images.length - 1) {
+                    setCurrentIndex(currentIndex + 1);
+                  } else {
+                    setCurrentIndex(0);
+                  }
                 } else if (dx > 0) {
                   setSlideDir('left');
-                  setCurrentIndex(Math.max(0, currentIndex - 1));
+                  if (currentIndex > 0) {
+                    setCurrentIndex(currentIndex - 1);
+                  } else {
+                    setCurrentIndex(images.length - 1);
+                  }
                 }
                 return;
               }
