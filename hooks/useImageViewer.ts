@@ -45,5 +45,7 @@ export function openImageViewer({
 
 export function closeImageViewer() {
   updateVisible(false);
+  updateImageUrl?.(undefined);
+  updateInitialIndex?.(undefined);
   // keep imageUrl to allow exit animation; caller can clear later if needed
 }
