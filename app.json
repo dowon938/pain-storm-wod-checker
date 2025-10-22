@@ -2,7 +2,7 @@
   "expo": {
     "name": "페인스톰 WOD",
     "slug": "painstorm-wod-checker",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "painstormwodchecker",
