@@ -32,6 +32,7 @@ import {
 import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { isDevice } from 'expo-device';
+import { Image } from 'expo-image';
 import { useNavigation } from 'expo-router';
 import Animated, {
   runOnJS,
@@ -218,11 +219,17 @@ const CommonWebview = ({
               if (__DEV__) console.log('CONSOLE', message?.params);
               break;
             case 'IMAGE_VIEWER':
+              const urls = (message?.params as Record<string, any>)
+                ?.srcs as string[];
+              const initialIndex = (message?.params as Record<string, any>)
+                ?.initialIndex;
               openImageViewer({
-                url: (message?.params as Record<string, any>)?.srcs as string[],
-                initialIndex: (message?.params as Record<string, any>)
-                  ?.initialIndex,
+                url: urls,
+                initialIndex: initialIndex,
               });
+              Image.prefetch(
+                urls.filter((url, index) => index !== initialIndex)
+              );
               break;
             default:
               return;
@@ -349,6 +356,7 @@ true;
       if (
         event.url.includes('painstorm-push-noti.dowon938.workers.dev/image?')
       ) {
+        Image.prefetch(event.url);
         openImageViewer({ url: event.url });
         return false;
       }
