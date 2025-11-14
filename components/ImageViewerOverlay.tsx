@@ -7,7 +7,7 @@ import {
 } from '@/hooks/useImageViewer';
 import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
 import { BlurView } from 'expo-blur';
-import * as FileSystem from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import React from 'react';
@@ -74,12 +74,14 @@ export default function ImageViewerOverlay() {
       if (!perm.granted) throw new Error('permission_denied');
 
       const targetUrl = images[currentIndex] ?? images[0];
-      const fileUri = FileSystem.cacheDirectory + `image-${Date.now()}.jpg`;
-      const res = await FileSystem.downloadAsync(targetUrl, fileUri);
+      const destination = new Directory(Paths.cache, 'images');
+      destination.create();
+      const res = await File.downloadFileAsync(targetUrl, destination);
       await MediaLibrary.saveToLibraryAsync(res.uri);
       setSaveDone('ok');
       setTimeout(() => setSaveDone(undefined), 1200);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setSaveDone('fail');
       setTimeout(() => setSaveDone(undefined), 1500);
     } finally {
