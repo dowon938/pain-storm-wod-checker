@@ -31,6 +31,7 @@ import {
 
 import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer, updateWebImageViewerOpen } from '@/hooks/useImageViewer';
+import Constants from 'expo-constants';
 import { isDevice } from 'expo-device';
 import { Image } from 'expo-image';
 import { Directory, File, Paths } from 'expo-file-system';
@@ -322,7 +323,9 @@ const CommonWebview = ({
 
   //onNavigationStateChange ios,android 동작 방식이 다른문제 해결. https://github.com/react-native-webview/react-native-webview/issues/24
   const getNavigationStateScript = useMemo(() => {
+    const appVersion = Constants.expoConfig?.version ?? '0.0.0';
     return `
+window.__appVersion = '${appVersion}';
 (function() {
   function wrap(fn) {
     return function wrapper() {
