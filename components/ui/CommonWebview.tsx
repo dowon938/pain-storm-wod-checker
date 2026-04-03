@@ -30,11 +30,14 @@ import {
 } from 'react-native-webview/lib/WebViewTypes';
 
 import { hapticLight } from '@/hooks/haptic';
-import { openImageViewer, updateWebImageViewerOpen } from '@/hooks/useImageViewer';
+import {
+  openImageViewer,
+  updateWebImageViewerOpen,
+} from '@/hooks/useImageViewer';
 import Constants from 'expo-constants';
 import { isDevice } from 'expo-device';
-import { Image } from 'expo-image';
 import { Directory, File, Paths } from 'expo-file-system';
+import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import { useNavigation } from 'expo-router';
 import Animated, {
@@ -43,6 +46,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CommonKeyboardAvoiding from './CommonKeyboardAvoiding';
 import { IOSScrollToTop } from './IosScrollToTop';
 import SplashImageView from './SplashImageView';
@@ -103,6 +107,12 @@ const CommonWebview = ({
   const count = useRef(0);
   count.current += 1;
   if (__DEV__) console.log(urlPath, count.current);
+
+  const { top: safeTop, bottom: safeBottom } = useSafeAreaInsets();
+  const adjustedSafeTop = useMemo(
+    () => safeTop - (Platform.OS === 'ios' && safeTop > 32 ? 8 : -10),
+    [safeTop],
+  );
 
   const webViewRef = useRef<WebView | null>(null);
   // const router = useRouter();
@@ -227,7 +237,10 @@ const CommonWebview = ({
                   status: 'loading' | 'done' | 'fail',
                   errorMessage?: string,
                 ) => {
-                  const detail = JSON.stringify({ status, message: errorMessage });
+                  const detail = JSON.stringify({
+                    status,
+                    message: errorMessage,
+                  });
                   webViewRef.current?.injectJavaScript(
                     `window.dispatchEvent(new CustomEvent('download-status', { detail: ${detail} })); true;`,
                   );
@@ -242,7 +255,10 @@ const CommonWebview = ({
                   const dir = new Directory(Paths.cache, 'images');
                   if (!dir.exists) dir.create();
                   const destFile = new File(dir, `img_${Date.now()}.jpg`);
-                  const res = await File.downloadFileAsync(downloadUrl, destFile);
+                  const res = await File.downloadFileAsync(
+                    downloadUrl,
+                    destFile,
+                  );
                   await MediaLibrary.saveToLibraryAsync(res.uri);
                   sendStatus('done');
                 } catch (error) {
@@ -326,6 +342,7 @@ const CommonWebview = ({
     const appVersion = Constants.expoConfig?.version ?? '0.0.0';
     return `
 window.__appVersion = '${appVersion}';
+window.__safeArea = { top: ${adjustedSafeTop}, bottom: ${safeBottom} };
 (function() {
   function wrap(fn) {
     return function wrapper() {
@@ -342,7 +359,13 @@ window.__appVersion = '${appVersion}';
 })();
 true;
 `;
-  }, []);
+  }, [adjustedSafeTop, safeBottom]);
+
+  useEffect(() => {
+    webViewRef.current?.injectJavaScript(
+      `window.__safeArea = { top: ${adjustedSafeTop}, bottom: ${safeBottom} }; window.dispatchEvent(new Event('safe-area-update')); true;`,
+    );
+  }, [adjustedSafeTop, safeBottom]);
 
   useEffect(() => {
     if (refetchWebviewRef) {
