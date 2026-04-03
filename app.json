@@ -2,7 +2,7 @@
   "expo": {
     "name": "페인스톰 WOD",
     "slug": "painstorm-wod-checker",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "painstormwodchecker",
@@ -26,7 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "io.dowoniandev.painstormwodchecker",
-      "versionCode": 2,
+      "versionCode": 3,
       "googleServicesFile": "./google-services-android.json"
     },
     "web": {
