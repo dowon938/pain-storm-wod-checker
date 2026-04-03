@@ -51,7 +51,7 @@ export default function ImageViewerOverlay() {
     setCurrentIndex(clamped);
   }, [initialIndex, images.length]);
   const [slideDir, setSlideDir] = React.useState<'initial' | 'left' | 'right'>(
-    'initial'
+    'initial',
   );
 
   const [saving, setSaving] = React.useState(false);
@@ -223,8 +223,8 @@ export default function ImageViewerOverlay() {
                 slideDir === 'initial'
                   ? FadeIn
                   : slideDir === 'right'
-                  ? SlideInRight.duration(220)
-                  : SlideInLeft.duration(220)
+                    ? SlideInRight.duration(220)
+                    : SlideInLeft.duration(220)
               }
               style={{ width: '100%', height: '100%' }}
             >

@@ -33,6 +33,8 @@ import { hapticLight } from '@/hooks/haptic';
 import { openImageViewer } from '@/hooks/useImageViewer';
 import { isDevice } from 'expo-device';
 import { Image } from 'expo-image';
+import { Directory, File, Paths } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { useNavigation } from 'expo-router';
 import Animated, {
   runOnJS,
@@ -77,7 +79,7 @@ const parseJsonOnce = (text: string): any[] | null => {
 };
 
 let testUrl: string | null = null;
-// testUrl = 'http://10.30.10.205:3000';
+testUrl = 'http://192.168.45.172:3000';
 // testUrl = 'https://painstorm-nextjs.vercel.app';
 
 const originWhitelist = ['*'];
@@ -114,7 +116,7 @@ const CommonWebview = ({
           : 'https://painstorm-nextjs.vercel.app')
       }${urlPath}`,
     }),
-    [urlPath]
+    [urlPath],
   );
 
   const currentStateRef = useRef({
@@ -135,7 +137,7 @@ const CommonWebview = ({
           }
         }
         return true;
-      }
+      },
     );
     return () => backHandler.remove();
   }, [navigation]);
@@ -143,6 +145,7 @@ const CommonWebview = ({
 
   const [loading, setLoading] = useState(true);
   const [topDimmingOn, setTopDimmingOn] = useState(false);
+  const [isWebImageViewerOpen, setIsWebImageViewerOpen] = useState(false);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const overlayOpacity = useSharedValue(1);
 
@@ -215,6 +218,47 @@ const CommonWebview = ({
             case 'SOFT_HAPTIC_FEEDBACK':
               hapticLight();
               break;
+            case 'DOWNLOAD_IMAGE':
+              const downloadUrl = (message?.params as Record<string, any>)
+                ?.url as string;
+              if (!downloadUrl) break;
+              (async () => {
+                const sendStatus = (
+                  status: 'loading' | 'done' | 'fail',
+                  errorMessage?: string,
+                ) => {
+                  const detail = JSON.stringify({ status, message: errorMessage });
+                  webViewRef.current?.injectJavaScript(
+                    `window.dispatchEvent(new CustomEvent('download-status', { detail: ${detail} })); true;`,
+                  );
+                };
+                try {
+                  const perm = await MediaLibrary.requestPermissionsAsync();
+                  if (!perm.granted) {
+                    sendStatus('fail', 'permission_denied');
+                    return;
+                  }
+                  sendStatus('loading');
+                  const dir = new Directory(Paths.cache, 'images');
+                  if (!dir.exists) dir.create();
+                  const destFile = new File(dir, `img_${Date.now()}.jpg`);
+                  const res = await File.downloadFileAsync(downloadUrl, destFile);
+                  await MediaLibrary.saveToLibraryAsync(res.uri);
+                  sendStatus('done');
+                } catch (error) {
+                  const errorMessage =
+                    error instanceof Error ? error.message : String(error);
+                  console.error('DOWNLOAD_IMAGE failed', error);
+                  sendStatus('fail', errorMessage);
+                }
+              })();
+              break;
+            case 'IMAGE_VIEWER_OPEN':
+              setIsWebImageViewerOpen(true);
+              break;
+            case 'IMAGE_VIEWER_CLOSE':
+              setIsWebImageViewerOpen(false);
+              break;
             case 'CONSOLE':
               if (__DEV__) console.log('CONSOLE', message?.params);
               break;
@@ -228,16 +272,16 @@ const CommonWebview = ({
                 initialIndex: initialIndex,
               });
               Image.prefetch(
-                urls.filter((url, index) => index !== initialIndex)
+                urls.filter((url, index) => index !== initialIndex),
               );
               break;
             default:
               return;
           }
-        }
+        },
       );
     },
-    [navigation]
+    [navigation],
   );
 
   const onLoadProgress = useCallback(
@@ -253,7 +297,7 @@ const CommonWebview = ({
         setTimeout(() => setLoading(false), Platform?.OS === 'ios' ? 120 : 200);
       }
     },
-    [loading]
+    [loading],
   );
 
   const onContentProcessDidTerminate = useCallback(() => {
@@ -308,7 +352,7 @@ true;
             setRefreshing(false);
             setTimeout(() => setLoading(false), 300);
           },
-          Platform?.OS === 'ios' ? 500 : 1000
+          Platform?.OS === 'ios' ? 500 : 1000,
         );
       };
     }
@@ -336,7 +380,7 @@ true;
         setRefreshing(false);
         setTimeout(() => setLoading(false), Platform?.OS === 'ios' ? 150 : 250);
       },
-      Platform?.OS === 'ios' ? 500 : 1000
+      Platform?.OS === 'ios' ? 500 : 1000,
     );
   }, []);
   // const { top } = useSafeAreaInsets();
@@ -363,10 +407,11 @@ true;
 
       return true;
     },
-    []
+    [],
   );
 
-  const pullToRefreshEnabled = topDimmingOn ? false : pullToRefreshEnabledProp;
+  const pullToRefreshEnabled =
+    topDimmingOn || isWebImageViewerOpen ? false : pullToRefreshEnabledProp;
 
   // const [ready, setReady] = useState(false);
   // useEffect(() => {
@@ -436,7 +481,7 @@ true;
 
   const IosWrapper = useMemo(
     () => (withIOSKeyboardAvoiding ? CommonKeyboardAvoiding : Fragment),
-    [withIOSKeyboardAvoiding]
+    [withIOSKeyboardAvoiding],
   );
 
   if (Platform?.OS === 'android') {
@@ -501,7 +546,7 @@ true;
         onStatusBarClicked={() => {
           webViewRef?.current?.injectJavaScript(
             `window.scrollTo({top:0, left:0, behavior: "smooth"});
-document.querySelector('.rn-scroll-to-top')?.scrollTo({top: 0, left:0, behavior: 'smooth'});`
+document.querySelector('.rn-scroll-to-top')?.scrollTo({top: 0, left:0, behavior: 'smooth'});`,
           );
         }}
       />
