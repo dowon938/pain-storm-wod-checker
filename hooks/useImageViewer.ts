@@ -12,12 +12,14 @@ type ImageViewerState = {
   imageUrl?: string | string[];
   origin?: ImageViewerOrigin;
   initialIndex?: number;
+  webImageViewerOpen: boolean;
 };
 
 const store = createStore<ImageViewerState>({
   visible: false,
   imageUrl: undefined,
   initialIndex: undefined,
+  webImageViewerOpen: false,
 });
 
 export const readVisible = store.readVisible;
@@ -30,6 +32,9 @@ export const useWatchImageUrl = store.useWatchImageUrl;
 export const readInitialIndex = store.readInitialIndex;
 export const updateInitialIndex = store.updateInitialIndex;
 export const useWatchInitialIndex = store.useWatchInitialIndex;
+
+export const useWatchWebImageViewerOpen = store.useWatchWebImageViewerOpen;
+export const updateWebImageViewerOpen = store.updateWebImageViewerOpen;
 
 export function openImageViewer({
   url = '',

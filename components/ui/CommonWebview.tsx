@@ -30,7 +30,7 @@ import {
 } from 'react-native-webview/lib/WebViewTypes';
 
 import { hapticLight } from '@/hooks/haptic';
-import { openImageViewer } from '@/hooks/useImageViewer';
+import { openImageViewer, updateWebImageViewerOpen } from '@/hooks/useImageViewer';
 import { isDevice } from 'expo-device';
 import { Image } from 'expo-image';
 import { Directory, File, Paths } from 'expo-file-system';
@@ -145,7 +145,6 @@ const CommonWebview = ({
 
   const [loading, setLoading] = useState(true);
   const [topDimmingOn, setTopDimmingOn] = useState(false);
-  const [isWebImageViewerOpen, setIsWebImageViewerOpen] = useState(false);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const overlayOpacity = useSharedValue(1);
 
@@ -254,10 +253,10 @@ const CommonWebview = ({
               })();
               break;
             case 'IMAGE_VIEWER_OPEN':
-              setIsWebImageViewerOpen(true);
+              updateWebImageViewerOpen(true);
               break;
             case 'IMAGE_VIEWER_CLOSE':
-              setIsWebImageViewerOpen(false);
+              updateWebImageViewerOpen(false);
               break;
             case 'CONSOLE':
               if (__DEV__) console.log('CONSOLE', message?.params);
@@ -410,8 +409,7 @@ true;
     [],
   );
 
-  const pullToRefreshEnabled =
-    topDimmingOn || isWebImageViewerOpen ? false : pullToRefreshEnabledProp;
+  const pullToRefreshEnabled = topDimmingOn ? false : pullToRefreshEnabledProp;
 
   // const [ready, setReady] = useState(false);
   // useEffect(() => {

@@ -1,4 +1,5 @@
 import { hapticLight } from '@/hooks/haptic';
+import { useWatchWebImageViewerOpen } from '@/hooks/useImageViewer';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
@@ -29,6 +30,11 @@ export default function AnimatedTabBar({
   const insets = useSafeAreaInsets();
   const indicatorX = useSharedValue(0);
   const [containerWidth, setContainerWidth] = useState<number>(0);
+  const webImageViewerOpen = (useWatchWebImageViewerOpen as unknown as () => boolean)();
+  const translateY = useSharedValue(0);
+  useEffect(() => {
+    translateY.value = withTiming(webImageViewerOpen ? 120 : 0, { duration: 250 });
+  }, [webImageViewerOpen, translateY]);
   const onLayout = (e: LayoutChangeEvent) => {
     setContainerWidth(e.nativeEvent.layout.width);
   };
@@ -74,13 +80,18 @@ export default function AnimatedTabBar({
     };
   }, [tabCount, containerWidth]);
   const insetBottom = Platform.OS === 'ios' ? 24 : insets.bottom + 8;
+  const wrapperAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
   return (
-    <View
+    <Animated.View
       style={[
         styles.wrapper,
         {
           paddingBottom: insetBottom,
         },
+        wrapperAnimatedStyle,
       ]}
     >
       <LinearGradient
@@ -119,7 +130,7 @@ export default function AnimatedTabBar({
           );
         })}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
