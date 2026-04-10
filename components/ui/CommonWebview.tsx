@@ -84,7 +84,7 @@ const parseJsonOnce = (text: string): any[] | null => {
 };
 
 let testUrl: string | null = null;
-testUrl = 'http://192.168.45.172:3000';
+// testUrl = 'http://localhost:3000';
 // testUrl = 'https://painstorm-nextjs.vercel.app';
 
 const originWhitelist = ['*'];
