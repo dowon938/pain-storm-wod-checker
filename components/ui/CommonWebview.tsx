@@ -34,6 +34,13 @@ import {
   openImageViewer,
   updateWebImageViewerOpen,
 } from '@/hooks/useImageViewer';
+import {
+  buildInitialSyncedStorageScript,
+  removeSyncedItem,
+  setSyncedItem,
+  useSyncedStorageSnapshot,
+} from '@/lib/synced-storage';
+import { registerWebView } from '@/lib/webview-registry';
 import Constants from 'expo-constants';
 import { isDevice } from 'expo-device';
 import { Directory, File, Paths } from 'expo-file-system';
@@ -117,6 +124,16 @@ const CommonWebview = ({
   const webViewRef = useRef<WebView | null>(null);
   // const router = useRouter();
   const navigation = useNavigation();
+
+  // 웹뷰 레지스트리 등록: 이 웹뷰가 살아 있는 동안 synced-storage 브로드캐스트 대상이 된다.
+  useEffect(() => {
+    const unregister = registerWebView(webViewRef);
+    return unregister;
+  }, []);
+
+  // synced-storage 스냅샷 구독: 값이 바뀌면 리렌더되어 injectedJavaScriptBeforeContentLoaded가
+  // 최신 스냅샷을 반영한다(다음 reload 시 올바른 초기값 주입).
+  const syncedStorageSnapshot = useSyncedStorageSnapshot();
 
   const source = useMemo(
     () => ({
@@ -291,6 +308,25 @@ const CommonWebview = ({
                 urls.filter((url, index) => index !== initialIndex),
               );
               break;
+            case 'SYNCED_STORAGE_SET': {
+              const syncParams =
+                (message?.params as Record<string, any>) ?? {};
+              const key = syncParams.key as string | undefined;
+              const value = syncParams.value as string | undefined;
+              if (typeof key !== 'string' || typeof value !== 'string') break;
+              // source는 이 웹뷰. 자기 자신에게는 다시 브로드캐스트하지 않는다(echo 방지).
+              // 앱은 allowlist를 두지 않는다 — 웹에서 추가한 키가 앱 배포 없이 그대로 동기화된다.
+              setSyncedItem(key, value, webViewRef);
+              break;
+            }
+            case 'SYNCED_STORAGE_REMOVE': {
+              const syncParams =
+                (message?.params as Record<string, any>) ?? {};
+              const key = syncParams.key as string | undefined;
+              if (typeof key !== 'string') break;
+              removeSyncedItem(key, webViewRef);
+              break;
+            }
             default:
               return;
           }
@@ -444,6 +480,13 @@ true;
   //   });
   // }, []);
 
+  // synced-storage 초기 스냅샷. useSyncedStorageSnapshot 구독으로 값 변경 시 리렌더되며,
+  // 이 prop이 새로 전달되면 다음 웹뷰 reload(pull-to-refresh 등)에서 최신 값이 주입된다.
+  const injectedJavaScriptBeforeContentLoaded = useMemo(
+    () => buildInitialSyncedStorageScript(),
+    [syncedStorageSnapshot],
+  );
+
   const commonWebViewProps = useMemo(() => {
     return {
       ref: webViewRef,
@@ -452,6 +495,7 @@ true;
       source,
       javaScriptEnabled: true,
       injectedJavaScript: getNavigationStateScript,
+      injectedJavaScriptBeforeContentLoaded,
       javaScriptCanOpenWindowsAutomatically: true,
       onShouldStartLoadWithRequest,
       onMessage: handlePostMessage,
@@ -495,6 +539,7 @@ true;
     };
   }, [
     getNavigationStateScript,
+    injectedJavaScriptBeforeContentLoaded,
     handlePostMessage,
     onContentProcessDidTerminate,
     onShouldStartLoadWithRequest,

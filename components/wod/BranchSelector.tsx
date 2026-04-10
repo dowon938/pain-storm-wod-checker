@@ -1,13 +1,16 @@
 import { hapticLight } from '@/hooks/haptic';
-import { createStore } from '@/lib/create-auto-store';
+import {
+  readSyncedItem,
+  setSyncedItem,
+  useSyncedStorage,
+} from '@/lib/synced-storage';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import React from 'react';
 import { Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import { MMKV } from 'react-native-mmkv';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-const storage = new MMKV();
+
 const PREF_PERFER_BRANCH = 'perferBranch';
 
 const AnimatedTouchableOpacity =
@@ -22,10 +25,30 @@ export enum PerferBranch {
   ALL_AT_ONCE = 'ALL_AT_ONCE',
 }
 
-export const { readPerferBranch, updatePerferBranch, useWatchPerferBranch } =
-  createStore({
-    perferBranch: storage.getString(PREF_PERFER_BRANCH) ?? PerferBranch.ALL,
+const isPerferBranch = (value: unknown): value is PerferBranch =>
+  typeof value === 'string' &&
+  (Object.values(PerferBranch) as string[]).includes(value);
+
+const normalizePerferBranch = (value: string | null): PerferBranch =>
+  isPerferBranch(value) ? value : PerferBranch.ALL;
+
+/**
+ * 네이티브 측 perferBranch API를 synced-storage 기반으로 재구현.
+ * update를 호출하면 모든 WebView에도 자동으로 브로드캐스트된다.
+ */
+export const readPerferBranch = (): PerferBranch =>
+  normalizePerferBranch(readSyncedItem(PREF_PERFER_BRANCH));
+
+export const updatePerferBranch = (value: PerferBranch): void => {
+  setSyncedItem(PREF_PERFER_BRANCH, value);
+};
+
+export const useWatchPerferBranch = (): PerferBranch => {
+  const [value] = useSyncedStorage(PREF_PERFER_BRANCH, {
+    defaultValue: PerferBranch.ALL,
   });
+  return normalizePerferBranch(value);
+};
 
 const BranchSelector = () => {
   const insets = useSafeAreaInsets();
@@ -140,7 +163,6 @@ const BranchSelector = () => {
                   onPress={() => {
                     hapticLight();
                     updatePerferBranch(opt.value);
-                    storage.set(PREF_PERFER_BRANCH, opt.value);
                     setOpen(false);
                   }}
                   style={{
