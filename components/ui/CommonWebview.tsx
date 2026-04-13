@@ -46,7 +46,7 @@ import { isDevice } from 'expo-device';
 import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -308,6 +308,16 @@ const CommonWebview = ({
                 urls.filter((url, index) => index !== initialIndex),
               );
               break;
+            case 'OPEN_OUTER_LINK': {
+              const outerUrl = (message?.params as Record<string, any>)
+                ?.url as string | undefined;
+              if (!outerUrl) break;
+              router.push({
+                pathname: '/outerlink',
+                params: { url: outerUrl },
+              });
+              break;
+            }
             case 'SYNCED_STORAGE_SET': {
               const syncParams =
                 (message?.params as Record<string, any>) ?? {};
