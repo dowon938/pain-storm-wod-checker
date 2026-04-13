@@ -172,7 +172,7 @@ const OuterLinkWebview = ({ url }: Props) => {
         javaScriptEnabled
         domStorageEnabled
         mediaPlaybackRequiresUserAction
-        allowsInlineMediaPlayback={false}
+        allowsInlineMediaPlayback
         sharedCookiesEnabled={false}
         thirdPartyCookiesEnabled={false}
         allowsBackForwardNavigationGestures={Platform.OS === 'ios'}
