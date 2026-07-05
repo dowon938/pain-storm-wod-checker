@@ -24,28 +24,6 @@ const SplashImageView = ({ children }: { children?: React.ReactNode }) => {
         contentFit='contain'
       />
       {children}
-      {/* <Text
-        style={{
-          color: 'rgba(255,255,255,0.7)',
-          fontSize: 12,
-          position: 'absolute',
-          bottom: 70,
-        }}
-      >
-        {status === 'UPDATING' ? 'Updating...' : 'Checking for Update...'}
-      </Text> */}
-      {/* {progress > 0 ? (
-        <Text
-          style={{
-            color: 'rgba(255,255,255,0.6)',
-            fontSize: 12,
-            position: 'absolute',
-            bottom: 50,
-          }}
-        >
-          {Math.round(progress * 100)}%
-        </Text>
-      ) : null} */}
     </View>
   );
 };

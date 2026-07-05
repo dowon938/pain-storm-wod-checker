@@ -11,7 +11,6 @@ import React, {
 } from 'react';
 import {
   BackHandler,
-  InteractionManager,
   Linking,
   Platform,
   RefreshControl,
@@ -122,7 +121,6 @@ const CommonWebview = ({
   );
 
   const webViewRef = useRef<WebView | null>(null);
-  // const router = useRouter();
   const navigation = useNavigation();
 
   // 웹뷰 레지스트리 등록: 이 웹뷰가 살아 있는 동안 synced-storage 브로드캐스트 대상이 된다.
@@ -202,11 +200,6 @@ const CommonWebview = ({
             case 'DIMMER_OFF':
               setTopDimmingOn((prev) => (prev ? false : prev));
               break;
-            // case POST_MESSAGE_TYPE.NAVIGATE:
-            //   const { screenName, routeParams } =
-            //     (message?.params as Record<string, any>) ?? {};
-            //   navigation.navigate(screenName, routeParams);
-            //   break;
             case 'DEEP_LINK':
               const { deeplinkUrl } =
                 (message?.params as Record<string, any>) ?? {};
@@ -222,14 +215,6 @@ const CommonWebview = ({
               }
               lastDeeplinkUrlRef.current = deeplinkUrl;
               lastDeeplinkAtRef.current = now;
-
-              InteractionManager.runAfterInteractions(() => {
-                // processURL({
-                //   url: deeplinkUrl,
-                //   navigation,
-                //   isPushNotification: false,
-                // });
-              });
               break;
             case 'GO_BACK':
               navigation.goBack();
@@ -454,7 +439,6 @@ true;
       Platform?.OS === 'ios' ? 500 : 1000,
     );
   }, []);
-  // const { top } = useSafeAreaInsets();
 
   const onShouldStartLoadWithRequest = useCallback(
     (event: ShouldStartLoadRequest) => {
@@ -482,13 +466,6 @@ true;
   );
 
   const pullToRefreshEnabled = topDimmingOn ? false : pullToRefreshEnabledProp;
-
-  // const [ready, setReady] = useState(false);
-  // useEffect(() => {
-  //   InteractionManager.runAfterInteractions(() => {
-  //     setReady(true);
-  //   });
-  // }, []);
 
   // synced-storage 초기 스냅샷. useSyncedStorageSnapshot 구독으로 값 변경 시 리렌더되며,
   // 이 prop이 새로 전달되면 다음 웹뷰 reload(pull-to-refresh 등)에서 최신 값이 주입된다.
@@ -566,7 +543,6 @@ true;
   if (Platform?.OS === 'android') {
     return (
       <>
-        {/* <TopDimmingView top={topDimmingOn ? top : 0} /> */}
         <CommonKeyboardAvoiding>
           <ScrollView
             scrollEnabled={!pullToRefreshEnabled ? false : refresherEnabled}
@@ -607,7 +583,6 @@ true;
 
   return (
     <>
-      {/* <TopDimmingView top={topDimmingOn ? top : 0} /> */}
       <IosWrapper>
         <WebView
           style={styles.styledWebView}

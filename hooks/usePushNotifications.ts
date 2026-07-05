@@ -10,7 +10,6 @@ import { useIsNavigationReady } from './useNavigationReady';
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken['data'];
-  notification?: Notifications.Notification;
 }
 
 export const usePushNotifications = (): PushNotificationState => {
@@ -30,10 +29,6 @@ export const usePushNotifications = (): PushNotificationState => {
   const [expoPushToken, setExpoPushToken] = useState<
     Notifications.ExpoPushToken['data'] | undefined
   >();
-
-  // const [notification, setNotification] = useState<
-  //   Notifications.Notification | undefined
-  // >();
 
   const notificationListener = useRef<Notifications.EventSubscription>(null);
   const responseListener = useRef<Notifications.EventSubscription>(null);
@@ -79,7 +74,6 @@ export const usePushNotifications = (): PushNotificationState => {
             projectId,
           })
         ).data;
-        // console.log(token);
       } catch (e) {
         token = `${e}`;
       }
@@ -118,10 +112,7 @@ export const usePushNotifications = (): PushNotificationState => {
     });
     // 푸시가 왔을떄
     notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        // console.log('notification', notification);
-        // setNotification(notification);
-      });
+      Notifications.addNotificationReceivedListener(() => {});
     // 푸시가 클릭됐을떄
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
@@ -154,15 +145,12 @@ export const usePushNotifications = (): PushNotificationState => {
     if (!expoPushToken) return;
     const fetchToken = async () => {
       try {
-        // const res =
         await fetch('https://painstorm-push-noti.dowon938.workers.dev/tokens', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ expoToken: expoPushToken }), // 또는 userId 생기면 실제 값
         });
         console.log(expoPushToken);
-        // const data = await res.json();
-        // console.log(data);
       } catch (error) {
         console.log('send token error', error);
       }
@@ -172,6 +160,5 @@ export const usePushNotifications = (): PushNotificationState => {
 
   return {
     expoPushToken: expoPushToken,
-    // notification,
   };
 };
