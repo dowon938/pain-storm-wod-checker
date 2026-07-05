@@ -1,6 +1,4 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-// import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AnimatedTabBar from '@/components/ui/AnimatedTabBar';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
