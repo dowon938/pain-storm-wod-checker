@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Animated, {
   Easing,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -181,7 +182,7 @@ type TabBarItemProps = {
   options: import('@react-navigation/bottom-tabs').BottomTabNavigationOptions;
   label: string;
   onPress: () => void;
-  indicatorX: Animated.SharedValue<number>;
+  indicatorX: SharedValue<number>;
   tabCount: number;
 };
 
