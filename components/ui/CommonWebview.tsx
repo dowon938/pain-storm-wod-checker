@@ -29,10 +29,7 @@ import {
 } from 'react-native-webview/lib/WebViewTypes';
 
 import { hapticLight } from '@/hooks/haptic';
-import {
-  openImageViewer,
-  updateWebImageViewerOpen,
-} from '@/hooks/useImageViewer';
+import { updateWebImageViewerOpen } from '@/hooks/useImageViewer';
 import {
   buildInitialSyncedStorageScript,
   removeSyncedItem,
@@ -43,7 +40,6 @@ import { registerWebView } from '@/lib/webview-registry';
 import Constants from 'expo-constants';
 import { isDevice } from 'expo-device';
 import { Directory, File, Paths } from 'expo-file-system';
-import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import { router, useNavigation } from 'expo-router';
 import Animated, {
@@ -280,19 +276,6 @@ const CommonWebview = ({
             case 'CONSOLE':
               if (__DEV__) console.log('CONSOLE', message?.params);
               break;
-            case 'IMAGE_VIEWER':
-              const urls = (message?.params as Record<string, any>)
-                ?.srcs as string[];
-              const initialIndex = (message?.params as Record<string, any>)
-                ?.initialIndex;
-              openImageViewer({
-                url: urls,
-                initialIndex: initialIndex,
-              });
-              Image.prefetch(
-                urls.filter((url, index) => index !== initialIndex),
-              );
-              break;
             case 'OPEN_OUTER_LINK': {
               const outerUrl = (message?.params as Record<string, any>)
                 ?.url as string | undefined;
@@ -450,13 +433,6 @@ true;
         event.url.includes('tel:')
       ) {
         Linking.openURL(event.url);
-        return false;
-      }
-      if (
-        event.url.includes('painstorm-push-noti.dowon938.workers.dev/image?')
-      ) {
-        Image.prefetch(event.url);
-        openImageViewer({ url: event.url });
         return false;
       }
 

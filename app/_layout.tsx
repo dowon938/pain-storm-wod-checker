@@ -1,4 +1,3 @@
-import ImageViewerOverlay from '@/components/ImageViewerOverlay';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
 import { getUpdateSource, HotUpdater } from '@hot-updater/react-native';
@@ -43,7 +42,6 @@ function RootLayout() {
           <Stack.Screen name='+not-found' />
         </Stack>
         <StatusBar style='light' />
-        <ImageViewerOverlay />
       </ThemeProvider>
       <ReducedMotionConfig mode={ReduceMotion.Never} />
     </ReactQueryProvider>
