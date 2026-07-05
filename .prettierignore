@@ -1,0 +1,8 @@
+node_modules
+ios
+android
+dist
+.expo
+bun.lock
+package-lock.json
+yarn.lock

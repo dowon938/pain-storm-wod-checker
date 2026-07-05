@@ -31,10 +31,14 @@ export default function AnimatedTabBar({
   const insets = useSafeAreaInsets();
   const indicatorX = useSharedValue(0);
   const [containerWidth, setContainerWidth] = useState<number>(0);
-  const webImageViewerOpen = (useWatchWebImageViewerOpen as unknown as () => boolean)();
+  const webImageViewerOpen = (
+    useWatchWebImageViewerOpen as unknown as () => boolean
+  )();
   const translateY = useSharedValue(0);
   useEffect(() => {
-    translateY.value = withTiming(webImageViewerOpen ? 120 : 0, { duration: 250 });
+    translateY.value = withTiming(webImageViewerOpen ? 120 : 0, {
+      duration: 250,
+    });
   }, [webImageViewerOpen, translateY]);
   const onLayout = (e: LayoutChangeEvent) => {
     setContainerWidth(e.nativeEvent.layout.width);
@@ -114,8 +118,8 @@ export default function AnimatedTabBar({
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           return (
             <TabBarItem

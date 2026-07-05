@@ -12,7 +12,8 @@ const CommonKeyboardAvoiding = ({ children }: { children: ReactNode }) => {
     <KeyboardAvoidingView
       behavior={behavior}
       style={{ flex: 1 }}
-      keyboardVerticalOffset={bottom === 0 ? keyboardVerticalOffset : 0}>
+      keyboardVerticalOffset={bottom === 0 ? keyboardVerticalOffset : 0}
+    >
       {children}
     </KeyboardAvoidingView>
   );

@@ -54,7 +54,7 @@ export default HotUpdater.wrap({
     'https://painstorm-hot-updater-worker.dowon938.workers.dev/api/check-update',
     {
       updateStrategy: 'appVersion', // or "fingerprint"
-    }
+    },
   ),
   requestHeaders: {
     // if you want to use the request headers, you can add them here

@@ -11,8 +11,7 @@ import type WebView from 'react-native-webview';
 
 export type WebViewLike = Pick<WebView, 'injectJavaScript'>;
 export type WebViewRefLike =
-  | RefObject<WebViewLike | null>
-  | MutableRefObject<WebViewLike | null>;
+  RefObject<WebViewLike | null> | MutableRefObject<WebViewLike | null>;
 
 const registry = new Set<WebViewRefLike>();
 

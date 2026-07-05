@@ -277,8 +277,8 @@ const CommonWebview = ({
               if (__DEV__) console.log('CONSOLE', message?.params);
               break;
             case 'OPEN_OUTER_LINK': {
-              const outerUrl = (message?.params as Record<string, any>)
-                ?.url as string | undefined;
+              const outerUrl = (message?.params as Record<string, any>)?.url as
+                string | undefined;
               if (!outerUrl) break;
               router.push({
                 pathname: '/outerlink',
@@ -287,8 +287,7 @@ const CommonWebview = ({
               break;
             }
             case 'SYNCED_STORAGE_SET': {
-              const syncParams =
-                (message?.params as Record<string, any>) ?? {};
+              const syncParams = (message?.params as Record<string, any>) ?? {};
               const key = syncParams.key as string | undefined;
               const value = syncParams.value as string | undefined;
               if (typeof key !== 'string' || typeof value !== 'string') break;
@@ -298,8 +297,7 @@ const CommonWebview = ({
               break;
             }
             case 'SYNCED_STORAGE_REMOVE': {
-              const syncParams =
-                (message?.params as Record<string, any>) ?? {};
+              const syncParams = (message?.params as Record<string, any>) ?? {};
               const key = syncParams.key as string | undefined;
               if (typeof key !== 'string') break;
               removeSyncedItem(key, webViewRef);

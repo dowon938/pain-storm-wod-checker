@@ -1,10 +1,9 @@
-import { d1Database, r2Storage } from "@hot-updater/cloudflare";
-import { expo } from "@hot-updater/expo";
-import { config } from "dotenv";
-import { defineConfig } from "hot-updater";
+import { d1Database, r2Storage } from '@hot-updater/cloudflare';
+import { expo } from '@hot-updater/expo';
+import { config } from 'dotenv';
+import { defineConfig } from 'hot-updater';
 
-config({ path: ".env.hotupdater" });
-
+config({ path: '.env.hotupdater' });
 
 export default defineConfig({
   build: expo(),
@@ -18,5 +17,5 @@ export default defineConfig({
     accountId: process.env.HOT_UPDATER_CLOUDFLARE_ACCOUNT_ID!,
     cloudflareApiToken: process.env.HOT_UPDATER_CLOUDFLARE_API_TOKEN!,
   }),
-  updateStrategy: "appVersion", // or "fingerprint"
+  updateStrategy: 'appVersion', // or "fingerprint"
 });

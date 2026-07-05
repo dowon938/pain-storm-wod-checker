@@ -90,7 +90,7 @@ export const usePushNotifications = (): PushNotificationState => {
     (response: Notifications.NotificationResponse) => {
       console.log(
         'NotificationResponsePath=>',
-        response?.notification?.request?.content?.data?.path
+        response?.notification?.request?.content?.data?.path,
       );
       switch (response?.notification?.request?.content?.data?.path) {
         case '/wods':
@@ -103,7 +103,7 @@ export const usePushNotifications = (): PushNotificationState => {
           router.navigate('/(tabs)');
       }
     },
-    [router]
+    [router],
   );
 
   useEffect(() => {

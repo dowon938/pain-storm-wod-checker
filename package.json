@@ -9,6 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
     "hot-update": "DOTENV_CONFIG_PATH=.env.hotupdater node -r dotenv/config node_modules/.bin/hot-updater deploy -i",
     "cp": "bun install && bun hot-update",
     "cp-console": "yarn hot-updater console"
@@ -61,6 +63,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "hot-updater": "0.20.11",
+    "prettier": "^3.9.4",
     "typescript": "~5.9.2"
   },
   "private": true

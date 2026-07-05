@@ -161,7 +161,9 @@ const OuterLinkWebview = ({ url }: Props) => {
       </View>
       {loading && (
         <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+          <View
+            style={[styles.progressFill, { width: `${progress * 100}%` }]}
+          />
         </View>
       )}
       <WebView
