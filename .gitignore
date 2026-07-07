@@ -41,3 +41,5 @@ app-example
 .env.hotupdater
 # hot-updater
 .hot-updater/output
+# hot-updater
+.hot-updater/log
