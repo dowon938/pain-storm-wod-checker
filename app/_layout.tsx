@@ -1,6 +1,6 @@
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
-import { getUpdateSource, HotUpdater } from '@hot-updater/react-native';
+import { HotUpdater } from '@hot-updater/react-native';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -50,12 +50,9 @@ function RootLayout() {
 
 // export default RootLayout;
 export default HotUpdater.wrap({
-  source: getUpdateSource(
+  baseURL:
     'https://painstorm-hot-updater-worker.dowon938.workers.dev/api/check-update',
-    {
-      updateStrategy: 'appVersion', // or "fingerprint"
-    },
-  ),
+  updateStrategy: 'appVersion', // or "fingerprint"
   requestHeaders: {
     // if you want to use the request headers, you can add them here
   },

@@ -17,9 +17,9 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
-    "@hot-updater/cloudflare": "0.20.11",
-    "@hot-updater/expo": "0.20.11",
-    "@hot-updater/react-native": "0.20.11",
+    "@hot-updater/cloudflare": "0.35.1",
+    "@hot-updater/expo": "0.35.1",
+    "@hot-updater/react-native": "0.35.1",
     "@react-native-community/netinfo": "12.0.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
@@ -62,7 +62,7 @@
     "@types/react": "~19.2.4",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~57.0.0",
-    "hot-updater": "0.20.11",
+    "hot-updater": "0.35.1",
     "prettier": "^3.9.4",
     "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "~6.0.3"
