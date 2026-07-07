@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "painstormwodchecker",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.dowoniandev.painstormwodchecker",
@@ -24,7 +23,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true,
       "package": "io.dowoniandev.painstormwodchecker",
       "versionCode": 3,
       "googleServicesFile": "./google-services-android.json"
@@ -53,7 +51,9 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true
