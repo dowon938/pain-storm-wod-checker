@@ -1,6 +1,6 @@
 import { hapticLight } from '@/hooks/haptic';
 import { useWatchWebImageViewerOpen } from '@/hooks/useImageViewer';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import type { Tabs } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -19,6 +19,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+type BottomTabBarProps = Parameters<
+  NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
+>[0];
 
 const SPACE_INSIDE_CONTAINER = 5;
 const BORDER_WIDTH = 0.5;
@@ -183,7 +187,7 @@ const styles = StyleSheet.create({
 type TabBarItemProps = {
   index: number;
   isFocused: boolean;
-  options: import('@react-navigation/bottom-tabs').BottomTabNavigationOptions;
+  options: BottomTabBarProps['descriptors'][string]['options'];
   label: string;
   onPress: () => void;
   indicatorX: SharedValue<number>;
