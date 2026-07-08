@@ -1,7 +1,7 @@
 import { hapticLight } from '@/hooks/haptic';
 import { useWatchWebImageViewerOpen } from '@/hooks/useImageViewer';
-import type { Tabs } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import type { Tabs } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -259,17 +259,11 @@ const TabBarItem = React.memo(function TabBarItem({
         {options.tabBarIcon ? (
           <>
             <Animated.View
-              style={[
-                StyleSheet.absoluteFillObject,
-                focusedOpacity,
-                focusedScale,
-              ]}
+              style={[StyleSheet.absoluteFill, focusedOpacity, focusedScale]}
             >
               {options.tabBarIcon({ focused: true, color: 'black', size: 28 })}
             </Animated.View>
-            <Animated.View
-              style={[StyleSheet.absoluteFillObject, unfocusedOpacity]}
-            >
+            <Animated.View style={[StyleSheet.absoluteFill, unfocusedOpacity]}>
               {options.tabBarIcon({ focused: false, color: 'white', size: 28 })}
             </Animated.View>
           </>
