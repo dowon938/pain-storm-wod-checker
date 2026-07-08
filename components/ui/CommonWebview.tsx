@@ -105,10 +105,6 @@ const CommonWebview = ({
   pullToRefreshEnabled: pullToRefreshEnabledProp = true,
   withIOSKeyboardAvoiding,
 }: Props) => {
-  const count = useRef(0);
-  count.current += 1;
-  if (__DEV__) console.log(urlPath, count.current);
-
   const { top: safeTop, bottom: safeBottom } = useSafeAreaInsets();
   const adjustedSafeTop = useMemo(
     () => safeTop - (Platform.OS === 'ios' && safeTop > 32 ? 8 : -10),
