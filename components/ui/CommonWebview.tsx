@@ -163,6 +163,8 @@ const CommonWebview = ({
   const [loading, setLoading] = useState(true);
   const [topDimmingOn, setTopDimmingOn] = useState(false);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refresherEnabled, setEnableRefresher] = useState(true);
   const overlayOpacity = useSharedValue(1);
 
   const lastDeeplinkUrlRef = useRef<string | null>(null);
@@ -329,7 +331,6 @@ const CommonWebview = ({
 
   useEffect(() => {
     if (loading) {
-      setShowLoadingOverlay(true);
       overlayOpacity.value = 1;
       return;
     }
@@ -378,6 +379,7 @@ true;
     if (refetchWebviewRef) {
       refetchWebviewRef.current = () => {
         setLoading(true);
+        setShowLoadingOverlay(true);
         webViewRef?.current?.reload();
         setTimeout(
           () => {
@@ -392,8 +394,6 @@ true;
 
   // webViewRef.current?.postMessage('refetch_from_app');
 
-  const [refreshing, setRefreshing] = useState(false);
-  const [refresherEnabled, setEnableRefresher] = useState(true);
   const handleScroll = useCallback((event: any) => {
     const yOffset = Number(event.nativeEvent.contentOffset.y);
     if (yOffset <= 0) {
@@ -406,6 +406,7 @@ true;
   const triggerRefresh = useCallback(() => {
     setRefreshing(true);
     setLoading(true);
+    setShowLoadingOverlay(true);
     webViewRef?.current?.reload();
     setTimeout(
       () => {
@@ -440,6 +441,9 @@ true;
   // 이 prop이 새로 전달되면 다음 웹뷰 reload(pull-to-refresh 등)에서 최신 값이 주입된다.
   const injectedJavaScriptBeforeContentLoaded = useMemo(
     () => buildInitialSyncedStorageScript(),
+    // syncedStorageSnapshot은 스냅샷 변경 시 스크립트를 재계산하기 위한 의도적 의존성이다
+    // (buildInitialSyncedStorageScript가 내부적으로 최신 스토리지를 읽음).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [syncedStorageSnapshot],
   );
 
