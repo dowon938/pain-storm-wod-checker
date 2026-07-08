@@ -54,12 +54,10 @@ const OuterLinkWebview = ({ url }: Props) => {
 
   const [currentUrl, setCurrentUrl] = useState(url);
   const [progress, setProgress] = useState(0);
-  const [canGoBack, setCanGoBack] = useState(false);
   const canGoBackRef = useRef(false);
 
   const onNavigationStateChange = useCallback((e: WebViewNavigation) => {
     setCurrentUrl(e.url);
-    setCanGoBack(e.canGoBack);
     canGoBackRef.current = e.canGoBack;
   }, []);
 

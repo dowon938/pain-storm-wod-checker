@@ -21,18 +21,17 @@ type WatchHook<T> = {
  * @param initialState 초기 상태나 타입을 전달합니다.
  * @returns `read`, `update`, `useWatch` 메서드를 포함한 store API를 반환합니다.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function createStore<T extends Record<string, any>>(initialState: T) {
   type Store = T & Updater<T>;
 
   const store = create<Store>((set) => {
     const setters = Object.keys(initialState).reduce((acc, key) => {
       const fnName = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       acc[fnName] = (value: any) =>
         set((state) => ({ ...state, [key]: value }));
       return acc;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }, {} as any);
 
     return {
@@ -50,7 +49,6 @@ export function createStore<T extends Record<string, any>>(initialState: T) {
       acc[`useWatch${capital}`] = () => store((state) => state[key]);
 
       return acc;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     },
     {} as Record<string, any>,
   ) as Reader<T> & Updater<T> & WatchHook<T>;

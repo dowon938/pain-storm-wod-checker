@@ -1,9 +1,8 @@
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { ReactQueryProvider } from '@/providers/react-query';
 import { HotUpdater } from '@hot-updater/react-native';
-import { DarkTheme, ThemeProvider } from 'expo-router';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import { setOptions } from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { LogBox } from 'react-native';
