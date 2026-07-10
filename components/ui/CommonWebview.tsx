@@ -241,7 +241,9 @@ const CommonWebview = ({
                   );
                 };
                 try {
-                  const perm = await MediaLibrary.requestPermissionsAsync();
+                  // write-only 권한만 요청한다. 갤러리 읽기(READ_MEDIA_*) 권한은 사용하지 않는다
+                  // (Google Play 사진·동영상 권한 정책 준수).
+                  const perm = await MediaLibrary.requestPermissionsAsync(true);
                   if (!perm.granted) {
                     sendStatus('fail', 'permission_denied');
                     return;
