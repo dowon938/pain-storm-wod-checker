@@ -2,7 +2,7 @@ import { hapticLight } from '@/hooks/haptic';
 import { useWatchWebImageViewerOpen } from '@/hooks/useImageViewer';
 import Octicons from '@expo/vector-icons/Octicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { Tabs } from 'expo-router';
+import { router, type Tabs } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -111,7 +111,7 @@ export default function AnimatedTabBar({
   const onSearchPressOut = useCallback(() => setSearchPressed(false), []);
   const onSearchPress = () => {
     hapticLight();
-    console.log('search pressed');
+    router.push('/search');
   };
 
   return (

@@ -38,6 +38,15 @@ function RootLayout() {
               animation: 'slide_from_bottom',
             }}
           />
+          <Stack.Screen
+            name='search'
+            options={{
+              headerShown: false,
+              presentation: 'fullScreenModal',
+              animation: 'slide_from_bottom',
+              gestureEnabled: true,
+            }}
+          />
           <Stack.Screen name='+not-found' />
         </Stack>
         <StatusBar style='light' />
