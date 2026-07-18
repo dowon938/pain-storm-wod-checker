@@ -19,7 +19,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='record'
         options={{
-          title: 'RECORD',
+          title: 'LOG',
           tabBarIcon: ({ focused }) => (
             <FontAwesome6
               name='ranking-star'
@@ -46,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name='location'
         options={{
-          title: 'LOCATION',
+          title: 'BOX',
           tabBarIcon: ({ focused }) => (
             <Octicons
               name='location'

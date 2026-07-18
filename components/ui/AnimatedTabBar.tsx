@@ -1,8 +1,9 @@
 import { hapticLight } from '@/hooks/haptic';
 import { useWatchWebImageViewerOpen } from '@/hooks/useImageViewer';
+import Octicons from '@expo/vector-icons/Octicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Tabs } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   LayoutChangeEvent,
   Platform,
@@ -26,6 +27,8 @@ type BottomTabBarProps = Parameters<
 
 const SPACE_INSIDE_CONTAINER = 5;
 const BORDER_WIDTH = 0.5;
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function AnimatedTabBar({
   state,
@@ -93,6 +96,24 @@ export default function AnimatedTabBar({
     transform: [{ translateY: translateY.value }],
   }));
 
+  const [searchPressed, setSearchPressed] = useState(false);
+  const searchScale = useSharedValue(1);
+  useEffect(() => {
+    searchScale.value = withTiming(searchPressed ? 1.18 : 1, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [searchPressed, searchScale]);
+  const searchButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: searchScale.value }],
+  }));
+  const onSearchPressIn = useCallback(() => setSearchPressed(true), []);
+  const onSearchPressOut = useCallback(() => setSearchPressed(false), []);
+  const onSearchPress = () => {
+    hapticLight();
+    console.log('search pressed');
+  };
+
   return (
     <Animated.View
       style={[
@@ -114,30 +135,42 @@ export default function AnimatedTabBar({
           opacity: 0.8,
         }}
       />
-      <View style={styles.container} onLayout={onLayout}>
-        <Animated.View style={[styles.indicator, indicatorStyle]} />
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
-          const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-                ? options.title
-                : route.name;
+      <View style={styles.row}>
+        <View style={styles.container} onLayout={onLayout}>
+          <Animated.View style={[styles.indicator, indicatorStyle]} />
+          {state.routes.map((route, index) => {
+            const { options } = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.name;
 
-          return (
-            <TabBarItem
-              key={route.key}
-              index={index}
-              isFocused={state.index === index}
-              options={options}
-              label={typeof label === 'string' ? label : ''}
-              onPress={() => onTabPress(index, route.key, route.name)}
-              indicatorX={indicatorX}
-              tabCount={tabCount}
-            />
-          );
-        })}
+            return (
+              <TabBarItem
+                key={route.key}
+                index={index}
+                isFocused={state.index === index}
+                options={options}
+                label={typeof label === 'string' ? label : ''}
+                onPress={() => onTabPress(index, route.key, route.name)}
+                indicatorX={indicatorX}
+                tabCount={tabCount}
+              />
+            );
+          })}
+        </View>
+        <AnimatedPressable
+          accessibilityRole='button'
+          accessibilityLabel='검색'
+          onPressIn={onSearchPressIn}
+          onPressOut={onSearchPressOut}
+          onPress={onSearchPress}
+          style={[styles.searchButton, searchButtonStyle]}
+        >
+          <Octicons name='search' size={20} color='white' />
+        </AnimatedPressable>
       </View>
     </Animated.View>
   );
@@ -152,17 +185,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     pointerEvents: 'box-none',
   },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '85%',
+    gap: 10,
+  },
   container: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 52,
-    width: '85%',
     borderRadius: 26,
     overflow: 'hidden',
     borderWidth: BORDER_WIDTH,
     backgroundColor: 'black',
     // backgroundColor: '#1F1F1F',
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  searchButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: BORDER_WIDTH,
+    backgroundColor: 'black',
     borderColor: 'rgba(255,255,255,0.4)',
   },
   tab: {
@@ -171,6 +221,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
+  },
+  tabContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   indicator: {
@@ -241,13 +296,30 @@ const TabBarItem = React.memo(function TabBarItem({
     };
   }, [index]);
 
+  const [pressed, setPressed] = useState(false);
+  const pressScale = useSharedValue(1);
+  useEffect(() => {
+    pressScale.value = withTiming(pressed ? 1.18 : 1, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [pressed, pressScale]);
+  const pressStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+  const onPressIn = useCallback(() => setPressed(true), []);
+  const onPressOut = useCallback(() => setPressed(false), []);
+
   return (
     <Pressable
       accessibilityRole='button'
       accessibilityState={isFocused ? { selected: true } : {}}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       onPress={onPress}
       style={styles.tab}
     >
+      <Animated.View style={[styles.tabContent, pressStyle]}>
       <View
         style={{
           width: 24,
@@ -306,6 +378,7 @@ const TabBarItem = React.memo(function TabBarItem({
           {label}
         </Animated.Text>
       </View>
+      </Animated.View>
     </Pressable>
   );
 });
