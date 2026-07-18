@@ -1,13 +1,18 @@
+import {
+  SearchWebview,
+  type SearchWebviewHandle,
+} from '@/components/ui/SearchWebview';
 import { hapticLight } from '@/hooks/haptic';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { useSyncedStorage } from '@/lib/synced-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -27,14 +32,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const PADDING_H = 12;
 const INPUT_PADDING_H = 8;
 const BAR_HEIGHT = 52;
 const CLOSE_SIZE = 52;
 const GAP = 10;
 
-// 스캐폴드용 더미 데이터 (추후 API/최근검색 연동 예정)
-const RECENT_QUERIES = ['Pull-up', 'Thrusters', 'Wall Ball', 'Deadlift'];
+// 웹(pain-storm-wod-web) 본문 폰트. 본문 400 / 강조 800
+const FONT = 'Paperlogy';
+const FONT_BOLD = 'PaperlogyExtraBold';
+
+// 지점 필터. 'ALL' = 전체(필터 없음). 나머지는 지점명(= 웹/브릿지 branch 값).
+const BRANCH_OPTIONS = [
+  { label: '전체', value: 'ALL' },
+  { label: '압구정', value: '압구정' },
+  { label: '잠실', value: '잠실' },
+  { label: '수원', value: '수원' },
+  { label: '아차산', value: '아차산' },
+] as const;
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -42,6 +56,16 @@ export default function SearchScreen() {
   const { width } = useWindowDimensions();
 
   const expandedWidth = width - INPUT_PADDING_H * 2 - CLOSE_SIZE - GAP;
+
+  // 선호지점('perferBranch': 'ALL' | 지점명)으로 필터 초기 선택.
+  // 여기서 바꿔도 전역 설정은 건드리지 않는 로컬 검색 스코프.
+  const [preferred] = useSyncedStorage('perferBranch', { defaultValue: 'ALL' });
+  const [branch, setBranch] = useState<string>(() =>
+    BRANCH_OPTIONS.some((b) => b.value === preferred) ? preferred : 'ALL',
+  );
+
+  const [query, setQuery] = useState('');
+  const webRef = useRef<SearchWebviewHandle>(null);
 
   // 0: 원형 버튼(닫힘) → 1: 인풋(열림)
   const progress = useSharedValue(0);
@@ -96,7 +120,7 @@ export default function SearchScreen() {
     ),
   }));
 
-  // 인풋 내부 텍스트/마이크는 어느 정도 펼쳐진 뒤 나타남
+  // 인풋 내부 텍스트는 어느 정도 펼쳐진 뒤 나타남
   const inputInnerStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0.45, 1], [0, 1], 'clamp'),
   }));
@@ -119,34 +143,60 @@ export default function SearchScreen() {
     router.back();
   };
 
+  const onSelectBranch = (value: string) => {
+    if (value === branch) return;
+    hapticLight();
+    setBranch(value);
+  };
+
+  const onSubmit = () => {
+    webRef.current?.submit();
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[styles.screen, { paddingTop: insets.top + 8 }]}
     >
+      {/* 컨텐츠(제목/결과/최근/상세)는 웹에서 렌더 */}
       <Animated.View style={[styles.body, contentStyle]}>
-        <Text style={styles.title}>검색</Text>
+        <SearchWebview
+          ref={webRef}
+          query={query}
+          branch={branch}
+          onSetQuery={setQuery}
+        />
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>최근 검색</Text>
-          <Pressable hitSlop={8} onPress={hapticLight}>
-            <Text style={styles.clearText}>지우기</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.chips}>
-          {RECENT_QUERIES.map((q) => (
-            <Pressable
-              key={q}
-              style={styles.chip}
-              onPress={hapticLight}
-              accessibilityRole='button'
-            >
-              <Octicons name='search' size={13} color='#8E8E93' />
-              <Text style={styles.chipText}>{q}</Text>
-            </Pressable>
-          ))}
-        </View>
+        {/* 지점 필터 칩 — 웹 컨텐츠 위에 떠 있음 */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps='handled'
+          style={styles.branchScroll}
+          contentContainerStyle={styles.branchBar}
+        >
+          {BRANCH_OPTIONS.map((opt) => {
+            const active = opt.value === branch;
+            return (
+              <Pressable
+                key={opt.value}
+                onPress={() => onSelectBranch(opt.value)}
+                style={[styles.branchChip, active && styles.branchChipActive]}
+                accessibilityRole='button'
+                accessibilityState={{ selected: active }}
+              >
+                <Text
+                  style={[
+                    styles.branchChipText,
+                    active && styles.branchChipTextActive,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </Animated.View>
 
       <View
@@ -166,13 +216,26 @@ export default function SearchScreen() {
           <Animated.View style={[styles.inputInner, inputInnerStyle]}>
             <TextInput
               autoFocus
+              value={query}
+              onChangeText={setQuery}
+              onSubmitEditing={onSubmit}
               style={styles.textInput}
               placeholder='WOD 검색...'
               placeholderTextColor='#8E8E93'
               returnKeyType='search'
               selectionColor='#0A84FF'
+              autoCorrect={false}
+              autoCapitalize='none'
             />
-            <Ionicons name='mic-outline' size={20} color='#8E8E93' />
+            {query.length > 0 ? (
+              <Pressable
+                hitSlop={8}
+                onPress={() => setQuery('')}
+                accessibilityLabel='입력 지우기'
+              >
+                <Octicons name='x-circle-fill' size={16} color='#8E8E93' />
+              </Pressable>
+            ) : null}
           </Animated.View>
         </Animated.View>
 
@@ -183,9 +246,7 @@ export default function SearchScreen() {
           style={[styles.close, closeStyle, colorStyle]}
         >
           <View style={styles.xIcon}>
-            <View
-              style={[styles.xLine, { transform: [{ rotate: '45deg' }] }]}
-            />
+            <View style={[styles.xLine, { transform: [{ rotate: '45deg' }] }]} />
             <View
               style={[styles.xLine, { transform: [{ rotate: '-45deg' }] }]}
             />
@@ -203,49 +264,49 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-    paddingHorizontal: PADDING_H,
+    overflow: 'hidden',
   },
-  title: {
-    color: 'white',
-    fontSize: 34,
-    fontWeight: '800',
-    marginTop: 8,
-    marginBottom: 24,
+  // 지점 필터 칩 바 — 웹 위에 떠 있는 하단 오버레이
+  branchScroll: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexGrow: 0,
+    flexShrink: 0,
+    backgroundColor: 'transparent',
   },
-  sectionHeader: {
+  branchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 14,
+    gap: 8,
+    paddingHorizontal: INPUT_PADDING_H + 8,
+    paddingVertical: 8,
   },
-  sectionTitle: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: '700',
+  branchChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: '#2C2C2E',
+    // 떠 있는 느낌 그림자
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 5,
   },
-  clearText: {
-    color: '#0A84FF',
-    fontSize: 15,
-    fontWeight: '600',
+  branchChipActive: {
+    backgroundColor: 'white',
   },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+  branchChipText: {
+    color: '#C7C7CC',
+    fontSize: 14,
+    fontFamily: FONT_BOLD,
   },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 18,
-    backgroundColor: '#1C1C1E',
+  branchChipTextActive: {
+    color: 'black',
   },
-  chipText: {
-    color: 'white',
-    fontSize: 15,
-  },
+  // 하단 바
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -268,6 +329,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
     marginLeft: 10,
   },
   textInput: {
@@ -275,6 +337,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 17,
     padding: 0,
+    fontFamily: FONT,
   },
   close: {
     width: CLOSE_SIZE,
