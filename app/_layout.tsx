@@ -16,6 +16,9 @@ function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     Heavitas: require('../assets/fonts/Heavitas.ttf'),
+    // 웹(pain-storm-wod-web) 본문 폰트 페이퍼로지: 본문 400 / 강조 800
+    Paperlogy: require('../assets/fonts/Paperlogy-4Regular.ttf'),
+    PaperlogyExtraBold: require('../assets/fonts/Paperlogy-8ExtraBold.ttf'),
   });
 
   usePushNotifications();
