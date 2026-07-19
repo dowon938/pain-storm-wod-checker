@@ -4,6 +4,27 @@ Expo/React Native 앱. `record`/`wod`/`location` 3개 탭을 각각 별도의 We
 `pain-storm-wod-web`을 로드한다. WebView들은 탭 간 persistent하며, 공통 래퍼는
 `components/ui/CommonWebview.tsx`.
 
+## 화면 공통 규칙: safe-area
+
+**모든 화면은 항상 safe-area(상단 노치/상태바, 하단 홈 인디케이터)를 처리한다.** 새 화면을
+만들거나 기존 화면을 수정할 때 빠뜨리지 말 것.
+
+- 네이티브 화면 셸: `useSafeAreaInsets()`로 top/bottom inset을 반영한다.
+- WebView 화면: `CommonWebview`가 `window.__safeArea = { top, bottom }`를 자동 주입하고
+  값 변경 시 `safe-area-update` 이벤트를 쏜다. 웹은 `useSafeArea()`로 읽어 처리하므로
+  **새 WebView 화면을 추가해도 앱 쪽에서 별도 작업은 필요 없다** — 웹에서 반영하면 된다.
+- 새 네이티브 스택 화면(예: `/webview`)을 추가할 때 상단을 이미 오프셋하는지 확인해
+  웹과 **이중 여백**이 생기지 않게 한다.
+
+## 웹→앱 딥링크 (범용 /webview 스택)
+
+웹 내부 경로를 네이티브 스택으로 열 때는 기능별 라우트/메시지를 만들지 말고 **범용
+`DEEP_LINK`** 를 쓴다. 웹이 `[{ type: 'DEEP_LINK', params: { deeplinkUrl: '/내부경로' } }]`를
+보내면 `CommonWebview`의 `DEEP_LINK` 핸들러가 `router.push({ pathname: '/webview',
+params: { path } })`로 **범용 `app/webview.tsx`** 를 열어 그 경로를 새 WebView로 로드한다.
+뒤로가기는 웹이 `[{ type: 'GO_BACK' }]`를 보내면 `navigation.goBack()`으로 pop.
+(예: 검색 결과 탭 → `/search/detail?date=&branch=`)
+
 ## 웹 ↔ 앱 상태 동기화 (synced-storage)
 
 설정 값(지점 선택, 테마 등)을 앱 MMKV와 3개 WebView의 localStorage 사이에
