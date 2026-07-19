@@ -15,11 +15,10 @@ export default function WebviewScreen() {
   const path = Array.isArray(params.path) ? params.path[0] : params.path;
   if (!path || !path.startsWith('/')) return null;
 
+  // 주의: CommonWebview는 scrollEnabled를 pullToRefreshEnabled에 묶어둔다
+  // (pullToRefreshEnabled=false → scrollEnabled=false). 상세는 스크롤이 필요하므로
+  // 이 prop을 넘기지 않고 기본값(true)을 쓴다.
   return (
-    <CommonWebview
-      urlPath={path}
-      CustomLoadingView={BlackLoadingView}
-      pullToRefreshEnabled={false}
-    />
+    <CommonWebview urlPath={path} CustomLoadingView={BlackLoadingView} />
   );
 }
