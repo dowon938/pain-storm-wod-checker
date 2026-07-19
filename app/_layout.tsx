@@ -41,13 +41,17 @@ function RootLayout() {
               animation: 'slide_from_bottom',
             }}
           />
+          {/* 검색: 아래→위 애니메이션은 유지하되 모달이 아니라 일반 스택 카드로 둔다.
+              (fullScreenModal 위로 card를 push하면 프레젠테이션이 중첩돼 상세 이동이
+               불안정 → card로 두면 상세 push가 표준 스택 이동이라 안정적) */}
           <Stack.Screen
             name='search'
             options={{
               headerShown: false,
-              presentation: 'fullScreenModal',
+              presentation: 'card',
               animation: 'slide_from_bottom',
               gestureEnabled: true,
+              gestureDirection: 'vertical',
             }}
           />
           {/* 범용 웹뷰 스택. 웹 DEEP_LINK로 열리는 상세 등을 네이티브 스택으로 push */}
