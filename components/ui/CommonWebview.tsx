@@ -314,6 +314,18 @@ const CommonWebview = ({
               }
               lastDeeplinkUrlRef.current = deeplinkUrl;
               lastDeeplinkAtRef.current = now;
+              // 웹 내부 경로('/...')면 범용 웹뷰 스택으로 push한다.
+              // (기능별 라우트를 만들지 않고 /webview 하나로 공통 처리)
+              if (
+                typeof deeplinkUrl === 'string' &&
+                deeplinkUrl.startsWith('/')
+              ) {
+                hapticLight();
+                router.push({
+                  pathname: '/webview',
+                  params: { path: deeplinkUrl },
+                });
+              }
               break;
             case 'GO_BACK':
               navigation.goBack();

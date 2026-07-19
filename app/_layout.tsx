@@ -50,6 +50,16 @@ function RootLayout() {
               gestureEnabled: true,
             }}
           />
+          {/* 범용 웹뷰 스택. 웹 DEEP_LINK로 열리는 상세 등을 네이티브 스택으로 push */}
+          <Stack.Screen
+            name='webview'
+            options={{
+              headerShown: false,
+              presentation: 'card',
+              animation: 'slide_from_right',
+              gestureEnabled: true,
+            }}
+          />
           <Stack.Screen name='+not-found' />
         </Stack>
         <StatusBar style='light' />
