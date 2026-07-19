@@ -8,7 +8,7 @@
 입력·지점은 **네이티브가 소유**하고, 네이티브가 WebView에 주입해 웹을 구동한다. 웹은 **자체 검색 입력창/지점 셀렉터를 렌더하지 않는다.**
 
 - 웹 데이터 소스는 기존 검색 API 명세를 그대로 사용: **pain-storm-wod-web `docs/search-api.md`** (`/search.json`, `/day.json`, 지점 단위 + `matches` 하이라이팅).
-- 네이티브 WebView 구현: `components/ui/SearchWebview.tsx`, 화면: `app/search.tsx`.
+- 네이티브 WebView 구현: `components/ui/CommonWebview.tsx`(`search` prop으로 활성화), 화면: `app/search.tsx`.
 
 ---
 
@@ -79,6 +79,16 @@ window.ReactNativeWebView?.postMessage(
 
 > 웹이 로컬 state로 검색어를 직접 바꾸지 말 것. 항상 네이티브를 진실원본으로 두고 `SEARCH_SET_QUERY` → `onInput` 왕복으로 반영한다(입력창 텍스트와 불일치 방지).
 
+### 3-c. `SEARCH_DISMISS_KEYBOARD` (선택)
+
+키보드는 네이티브 입력창 소유라 웹 스크롤만으로는 자동으로 안 내려간다. 네이티브가 WebView `onScroll`로 **드래그/스크롤 시 자동 dismiss**를 이미 처리하므로 보통은 웹이 아무것도 안 해도 된다. 다만 **탭(빈 영역 터치)으로도 키보드를 내리고 싶으면** 웹이 이 메시지를 보내면 된다.
+
+```js
+window.ReactNativeWebView?.postMessage(
+  JSON.stringify({ type: 'SEARCH_DISMISS_KEYBOARD' })
+);
+```
+
 그 외 메시지는 현재 없음. (닫기는 네이티브 X 버튼이 담당)
 
 ---
@@ -101,11 +111,12 @@ window.ReactNativeWebView?.postMessage(
 
 ## 5. 레이아웃 제약 (중요)
 
-네이티브 오버레이가 WebView 위에 겹친다:
+WebView는 **키보드 바로 위까지 화면을 꽉 채우고**, 네이티브 오버레이(입력바 + 칩 바)가 **그 위에 투명하게 떠 있다**(입력 뒤 배경은 WebView가 비침).
 
-- **하단**: 지점 **칩 바가 WebView 하단에 떠 있음**(높이 약 48~52px). 그 아래 네이티브 입력바는 WebView 바깥(겹치지 않음).
-  → 웹 컨텐츠는 **하단 패딩 ≥ 64px**(칩에 안 가리게). 스크롤 리스트 `padding-bottom`, 상세 화면 하단 여백에 반영.
-- **상단**: 네이티브가 **safe-area top을 이미 처리**(WebView는 상태바 아래에서 시작). 웹은 상단에 별도 safe-area inset을 더하지 말 것(이중 여백). 일반 상단 여백만.
+- **하단**: 입력바(높이 ~52px) + 그 위 지점 칩 바(~48px) + safe-area 하단이 **WebView 위에 겹친다**.
+  → 웹 컨텐츠는 **하단 패딩 ≥ 130px**(입력바·칩에 안 가리게). 스크롤 리스트 `padding-bottom`, 상세 화면 하단 여백에 반영.
+  → 키보드가 열리면 오버레이가 키보드 위로 올라오므로, 스크롤 컨테이너 하단이 그만큼 확보되면 된다(넉넉히 ~130px 권장).
+- **상단**: WebView가 **화면 최상단(상태바/노치 뒤)까지** 꽉 채운다. **safe-area top은 웹이 처리**해야 한다 — 컨텐츠 최상단에 `env(safe-area-inset-top)`(또는 뷰포트 `viewport-fit=cover` 기반) 만큼 패딩을 넣어 제목이 노치에 가리지 않게 하라. 상태바 글자는 밝은색(다크 배경) 기준.
 - **테마**: 배경 검정 기준 다크 테마로 맞춘다(앱과 이어지게). 투명 필요 없음 — 웹이 자체 검정 배경 풀스크린.
 - 가로 스크롤/바운스는 최소화(입력은 네이티브라 웹은 표시 위주).
 

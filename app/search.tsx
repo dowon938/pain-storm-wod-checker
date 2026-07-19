@@ -1,10 +1,8 @@
-import {
-  SearchWebview,
-  type SearchWebviewHandle,
-} from '@/components/ui/SearchWebview';
+import CommonWebview from '@/components/ui/CommonWebview';
 import { hapticLight } from '@/hooks/haptic';
 import { useSyncedStorage } from '@/lib/synced-storage';
 import Octicons from '@expo/vector-icons/Octicons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -31,6 +29,10 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// 검색 웹뷰 로딩 오버레이: 스플래시 대신 검정만(진입 애니메이션과 자연스럽게 이어짐).
+// CommonWebview의 progressWrapper가 이미 검정 배경이라 아무것도 그리지 않아도 된다.
+const BlackLoadingView = () => null;
 
 const INPUT_PADDING_H = 8;
 const BAR_HEIGHT = 52;
@@ -65,7 +67,7 @@ export default function SearchScreen() {
   );
 
   const [query, setQuery] = useState('');
-  const webRef = useRef<SearchWebviewHandle>(null);
+  const submitRef = useRef<() => void>(() => {});
 
   // 0: 원형 버튼(닫힘) → 1: 인풋(열림)
   const progress = useSharedValue(0);
@@ -150,110 +152,135 @@ export default function SearchScreen() {
   };
 
   const onSubmit = () => {
-    webRef.current?.submit();
+    submitRef.current?.();
   };
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.screen, { paddingTop: insets.top + 8 }]}
-    >
-      {/* 컨텐츠(제목/결과/최근/상세)는 웹에서 렌더 */}
-      <Animated.View style={[styles.body, contentStyle]}>
-        <SearchWebview
-          ref={webRef}
-          query={query}
-          branch={branch}
-          onSetQuery={setQuery}
-        />
+  const paddingBottom = keyboardVisible
+    ? 12
+    : insets.bottom > 0
+      ? insets.bottom
+      : 16;
 
-        {/* 지점 필터 칩 — 웹 컨텐츠 위에 떠 있음 */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyboardShouldPersistTaps='handled'
-          style={styles.branchScroll}
-          contentContainerStyle={styles.branchBar}
-        >
-          {BRANCH_OPTIONS.map((opt) => {
-            const active = opt.value === branch;
-            return (
-              <Pressable
-                key={opt.value}
-                onPress={() => onSelectBranch(opt.value)}
-                style={[styles.branchChip, active && styles.branchChipActive]}
-                accessibilityRole='button'
-                accessibilityState={{ selected: active }}
-              >
-                <Text
-                  style={[
-                    styles.branchChipText,
-                    active && styles.branchChipTextActive,
-                  ]}
-                >
-                  {opt.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+  return (
+    <View style={styles.screen}>
+      {/* 컨텐츠(제목/결과/최근/상세)는 웹에서 렌더. safe-area 포함 전체를 뒤로 깔음 */}
+      <Animated.View style={[styles.webWrap, contentStyle]}>
+        <CommonWebview
+          urlPath='/search'
+          CustomLoadingView={BlackLoadingView}
+          searchSubmitRef={submitRef}
+          search={{
+            query,
+            branch,
+            onSetQuery: setQuery,
+          }}
+        />
       </Animated.View>
 
-      <View
-        style={[
-          styles.bar,
-          {
-            paddingBottom: keyboardVisible
-              ? 12
-              : insets.bottom > 0
-                ? insets.bottom
-                : 16,
-          },
-        ]}
+      {/* 입력 + 칩 오버레이 — 웹 위에 투명하게 떠 있고, 키보드 위로 올라감 */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.kav}
+        pointerEvents='box-none'
       >
-        <Animated.View style={[styles.input, inputStyle, colorStyle]}>
-          <Octicons name='search' size={18} color='#8E8E93' />
-          <Animated.View style={[styles.inputInner, inputInnerStyle]}>
-            <TextInput
-              autoFocus
-              value={query}
-              onChangeText={setQuery}
-              onSubmitEditing={onSubmit}
-              style={styles.textInput}
-              placeholder='WOD 검색...'
-              placeholderTextColor='#8E8E93'
-              returnKeyType='search'
-              selectionColor='#0A84FF'
-              autoCorrect={false}
-              autoCapitalize='none'
-            />
-            {query.length > 0 ? (
-              <Pressable
-                hitSlop={8}
-                onPress={() => setQuery('')}
-                accessibilityLabel='입력 지우기'
-              >
-                <Octicons name='x-circle-fill' size={16} color='#8E8E93' />
-              </Pressable>
-            ) : null}
-          </Animated.View>
-        </Animated.View>
+        <View style={styles.spacer} pointerEvents='none' />
 
-        <AnimatedPressable
-          accessibilityRole='button'
-          accessibilityLabel='닫기'
-          onPress={onClose}
-          style={[styles.close, closeStyle, colorStyle]}
-        >
-          <View style={styles.xIcon}>
-            <View style={[styles.xLine, { transform: [{ rotate: '45deg' }] }]} />
-            <View
-              style={[styles.xLine, { transform: [{ rotate: '-45deg' }] }]}
-            />
+        <View pointerEvents='box-none'>
+          <LinearGradient
+            colors={[
+              'transparent',
+              // 'rgba(255,255,255,0.8)',
+              // 'rgba(255,255,255,0.8)',
+              'transparent',
+            ]}
+            style={{
+              position: 'absolute',
+              bottom: -180,
+              left: 0,
+              right: 0,
+              height: 270,
+              opacity: 0.8,
+            }}
+          />
+          {/* 지점 필터 칩 */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyboardShouldPersistTaps='handled'
+            style={styles.branchScroll}
+            contentContainerStyle={styles.branchBar}
+          >
+            {BRANCH_OPTIONS.map((opt) => {
+              const active = opt.value === branch;
+              return (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => onSelectBranch(opt.value)}
+                  style={[styles.branchChip, active && styles.branchChipActive]}
+                  accessibilityRole='button'
+                  accessibilityState={{ selected: active }}
+                >
+                  <Text
+                    style={[
+                      styles.branchChipText,
+                      active && styles.branchChipTextActive,
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          <View style={[styles.bar, { paddingBottom }]}>
+            <Animated.View style={[styles.input, inputStyle, colorStyle]}>
+              <Octicons name='search' size={18} color='#8E8E93' />
+              <Animated.View style={[styles.inputInner, inputInnerStyle]}>
+                <TextInput
+                  autoFocus
+                  value={query}
+                  onChangeText={setQuery}
+                  onSubmitEditing={onSubmit}
+                  style={styles.textInput}
+                  placeholder='WOD 검색...'
+                  placeholderTextColor='#8E8E93'
+                  returnKeyType='search'
+                  selectionColor='#0A84FF'
+                  autoCorrect={false}
+                  autoCapitalize='none'
+                />
+                {query.length > 0 ? (
+                  <Pressable
+                    hitSlop={8}
+                    onPress={() => setQuery('')}
+                    accessibilityLabel='입력 지우기'
+                  >
+                    <Octicons name='x-circle-fill' size={16} color='#8E8E93' />
+                  </Pressable>
+                ) : null}
+              </Animated.View>
+            </Animated.View>
+
+            <AnimatedPressable
+              accessibilityRole='button'
+              accessibilityLabel='닫기'
+              onPress={onClose}
+              style={[styles.close, closeStyle, colorStyle]}
+            >
+              <View style={styles.xIcon}>
+                <View
+                  style={[styles.xLine, { transform: [{ rotate: '45deg' }] }]}
+                />
+                <View
+                  style={[styles.xLine, { transform: [{ rotate: '-45deg' }] }]}
+                />
+              </View>
+            </AnimatedPressable>
           </View>
-        </AnimatedPressable>
-      </View>
-    </KeyboardAvoidingView>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -262,16 +289,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black',
   },
-  body: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  // 지점 필터 칩 바 — 웹 위에 떠 있는 하단 오버레이
-  branchScroll: {
+  // 웹뷰: 절대배치로 화면 전체(safe-area 포함)를 뒤로 깔음
+  webWrap: {
     position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    overflow: 'hidden',
+    backgroundColor: 'black',
+  },
+  kav: {
+    flex: 1,
+  },
+  // 웹뷰 터치를 통과시키는 투명 스페이서(결과 스크롤 영역)
+  spacer: {
+    flex: 1,
+  },
+  // 지점 필터 칩 바 — 입력 위에 떠 있음
+  branchScroll: {
     flexGrow: 0,
     flexShrink: 0,
     backgroundColor: 'transparent',
