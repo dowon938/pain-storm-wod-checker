@@ -49,7 +49,7 @@ function RootLayout() {
             options={{
               headerShown: false,
               presentation: 'card',
-              animation: 'slide_from_bottom',
+              animation: 'fade_from_bottom',
               gestureEnabled: true,
               gestureDirection: 'vertical',
             }}

@@ -3,7 +3,7 @@ import { hapticLight } from '@/hooks/haptic';
 import { useSyncedStorage } from '@/lib/synced-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
@@ -54,6 +54,7 @@ const BRANCH_OPTIONS = [
 
 export default function SearchScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
@@ -75,6 +76,8 @@ export default function SearchScreen() {
   const colorProgress = useSharedValue(0);
   // 화면 콘텐츠 진입(페이드/슬라이드업)
   const content = useSharedValue(0);
+  // 지점 칩 바 진입(입력 모프 끝난 뒤 fade-in + 아래→위 상승)
+  const chips = useSharedValue(0);
 
   // 키보드 열림 여부 (열렸을 땐 하단 여백을 고정값으로)
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -95,21 +98,51 @@ export default function SearchScreen() {
     };
   }, []);
 
+  // 입력창 모프 진입 애니메이션.
+  // 마운트 시점(JS)에서 시작하면 native-stack에선 화면이 실제로 보이기 전에
+  // 애니메이션이 끝나버릴 수 있다(카드 전환이 빠를수록 더 심함). 그래서
+  // 네이티브 전환 완료(transitionEnd) 시점에 재생해 프레젠테이션 종류/속도와
+  // 무관하게 화면이 보인 뒤 모프가 보이도록 한다.
   useEffect(() => {
-    // 스택 슬라이드업이 끝날 즈음 모프 시작
-    progress.value = withDelay(
-      120,
-      withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) }),
+    let started = false;
+    const startEntrance = () => {
+      if (started) return;
+      started = true;
+      progress.value = withTiming(1, {
+        duration: 320,
+        easing: Easing.out(Easing.cubic),
+      });
+      colorProgress.value = withDelay(
+        280,
+        withTiming(1, { duration: 1000, easing: Easing.out(Easing.cubic) }),
+      );
+      content.value = withTiming(1, {
+        duration: 360,
+        easing: Easing.out(Easing.cubic),
+      });
+      // 지점 칩은 입력 모프(320ms)가 끝난 뒤에 fade-in + 아래→위 상승.
+      chips.value = withDelay(
+        340,
+        withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }),
+      );
+    };
+
+    // 화면 진입(열림) 전환이 끝나면 시작. 닫힘 전환에는 반응하지 않는다.
+    const unsub = (navigation as any).addListener(
+      'transitionEnd',
+      (e: { data?: { closing?: boolean } }) => {
+        if (e?.data?.closing) return;
+        startEntrance();
+      },
     );
-    colorProgress.value = withDelay(
-      400,
-      withTiming(1, { duration: 1000, easing: Easing.out(Easing.cubic) }),
-    );
-    content.value = withDelay(
-      120,
-      withTiming(1, { duration: 360, easing: Easing.out(Easing.cubic) }),
-    );
-  }, [progress, colorProgress, content]);
+    // transitionEnd가 오지 않는 환경(애니메이션 없음 등) 폴백.
+    const fallback = setTimeout(startEntrance, 450);
+
+    return () => {
+      unsub();
+      clearTimeout(fallback);
+    };
+  }, [navigation, progress, colorProgress, content, chips]);
 
   const inputStyle = useAnimatedStyle(() => ({
     width: interpolate(progress.value, [0, 1], [BAR_HEIGHT, expandedWidth]),
@@ -138,6 +171,12 @@ export default function SearchScreen() {
   const contentStyle = useAnimatedStyle(() => ({
     opacity: content.value,
     transform: [{ translateY: interpolate(content.value, [0, 1], [16, 0]) }],
+  }));
+
+  // 지점 칩 바: fade-in + 아래→위 살짝 상승
+  const chipsStyle = useAnimatedStyle(() => ({
+    opacity: chips.value,
+    transform: [{ translateY: interpolate(chips.value, [0, 1], [12, 0]) }],
   }));
 
   const onClose = () => {
@@ -202,14 +241,15 @@ export default function SearchScreen() {
               opacity: 0.8,
             }}
           />
-          {/* 지점 필터 칩 */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyboardShouldPersistTaps='handled'
-            style={styles.branchScroll}
-            contentContainerStyle={styles.branchBar}
-          >
+          {/* 지점 필터 칩 (입력 모프 후 fade-in + 상승) */}
+          <Animated.View style={chipsStyle}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyboardShouldPersistTaps='handled'
+              style={styles.branchScroll}
+              contentContainerStyle={styles.branchBar}
+            >
             {BRANCH_OPTIONS.map((opt) => {
               const active = opt.value === branch;
               return (
@@ -231,7 +271,8 @@ export default function SearchScreen() {
                 </Pressable>
               );
             })}
-          </ScrollView>
+            </ScrollView>
+          </Animated.View>
 
           <View style={[styles.bar, { paddingBottom }]}>
             <Animated.View style={[styles.input, inputStyle, colorStyle]}>
