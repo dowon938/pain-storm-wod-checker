@@ -33,6 +33,11 @@ yarn-error.*
 # local env files
 .env*.local
 
+# store credentials (절대 커밋 금지)
+google-play-service-account*.json
+*-service-account*.json
+credentials.json
+
 # typescript
 *.tsbuildinfo
 
