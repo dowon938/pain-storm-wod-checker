@@ -384,11 +384,17 @@ const CommonWebview = ({
                 }
               })();
               break;
+            // 웹 이미지 뷰어가 떠 있는 동안은 pull-to-refresh를 끈다.
+            // 안드로이드는 웹뷰가 RefreshControl 달린 ScrollView 안에 있어서,
+            // 모달을 아래로 스와이프해 닫으려 하면(페이지는 최상단) 새로고침이 발동한다.
+            // 웹이 DIMMER_ON/OFF도 함께 보내지만, 그 이전 버전 웹을 위해 여기서도 처리한다.
             case 'IMAGE_VIEWER_OPEN':
               updateWebImageViewerOpen(true);
+              setTopDimmingOn((prev) => (prev ? prev : true));
               break;
             case 'IMAGE_VIEWER_CLOSE':
               updateWebImageViewerOpen(false);
+              setTopDimmingOn((prev) => (prev ? false : prev));
               break;
             case 'CONSOLE':
               if (__DEV__) console.log('CONSOLE', message?.params);
