@@ -11,7 +11,6 @@ import React, {
 } from 'react';
 import {
   BackHandler,
-  Keyboard,
   Linking,
   Platform,
   RefreshControl,
@@ -91,32 +90,19 @@ let testUrl: string | null = null;
 
 const originWhitelist = ['*'];
 
-/**
- * 검색 화면 브릿지(app/search.tsx 전용). 상세: docs/search-webview-bridge.md
- * 입력(검색어)·지점은 네이티브가 소유하고, 이 값들을 웹(`/search`)으로 push한다.
- * 이 prop이 있을 때만 검색 관련 주입/메시지 처리가 활성화된다.
- */
-export type SearchBridge = {
-  /** 검색어(원문). 매 변경 시 웹으로 push */
-  query: string;
-  /** 지점 필터: 'ALL' | 지점명(압구정/잠실/수원/아차산) */
-  branch: string;
-  /** 웹이 최근검색 탭 등으로 검색어를 바꾸려 할 때(네이티브 입력값 반영) */
-  onSetQuery?: (q: string) => void;
-};
-
 type Props = {
   urlPath: string;
   refetchWebviewRef?: RefObject<() => void>;
   CustomLoadingView?: React.FC;
   pullToRefreshEnabled?: boolean;
   withIOSKeyboardAvoiding?: boolean;
-  search?: SearchBridge;
   /**
-   * 검색 제출(엔터) 트리거 바인딩용 ref. current를 호출하면 submit push.
-   * refetchWebviewRef와 동일하게 최상위 ref prop으로 둔다(중첩 ref 금지).
+   * 웹 페이지가 자체 텍스트 인풋을 갖는 화면(예: /search)에서 켠다.
+   * - keyboardDisplayRequiresUserAction=false: 웹의 autoFocus로 키보드가 뜨게 허용(iOS)
+   * - hideKeyboardAccessoryView=true: iOS 키보드 위 이전/다음/완료 바 제거
+   * 키보드를 피해 입력창을 띄우는 건 웹이 visualViewport로 처리한다.
    */
-  searchSubmitRef?: RefObject<() => void>;
+  webKeyboardInput?: boolean;
 };
 
 const CommonWebview = ({
@@ -125,8 +111,7 @@ const CommonWebview = ({
   CustomLoadingView,
   pullToRefreshEnabled: pullToRefreshEnabledProp = true,
   withIOSKeyboardAvoiding,
-  search,
-  searchSubmitRef,
+  webKeyboardInput,
 }: Props) => {
   const { top: safeTop, bottom: safeBottom } = useSafeAreaInsets();
   const adjustedSafeTop = useMemo(
@@ -193,91 +178,8 @@ const CommonWebview = ({
   const lastDeeplinkUrlRef = useRef<string | null>(null);
   const lastDeeplinkAtRef = useRef<number>(0);
 
-  // ====== 검색 브릿지(app/search.tsx 전용) ======
-  // search prop이 있을 때만 활성화. 웹으로 검색어/지점을 push하고,
-  // SEARCH_* 단일 객체 메시지를 처리한다. docs/search-webview-bridge.md
-  const searchEnabled = !!search;
-  const searchQuery = search?.query;
-  const searchBranch = search?.branch;
-  const searchReadyRef = useRef(false);
-  const searchEnabledRef = useRef(searchEnabled);
-  // 항상 최신 값을 참조(ready flush / submit / 메시지 핸들러에서 사용)
-  const searchLatestRef = useRef({ query: '', branch: 'ALL' });
-  // onSetQuery는 메시지 핸들러 deps 오염을 막기 위해 ref로 참조
-  const onSearchSetQueryRef = useRef(search?.onSetQuery);
-
-  // 렌더 중 ref를 쓰지 않고 effect에서 최신 값으로 동기화한다.
-  useEffect(() => {
-    searchEnabledRef.current = searchEnabled;
-    searchLatestRef.current = {
-      query: searchQuery ?? '',
-      branch: searchBranch ?? 'ALL',
-    };
-    onSearchSetQueryRef.current = search?.onSetQuery;
-  });
-
-  const sendSearch = useCallback(
-    (payload: { q: string; branch: string; submit?: boolean }) => {
-      if (!searchReadyRef.current) return; // ready 전이면 무시 → ready 시 flush로 반영
-      const js = `window.PainstormSearch && window.PainstormSearch.onInput(${JSON.stringify(
-        payload,
-      )}); true;`;
-      webViewRef.current?.injectJavaScript(js);
-    },
-    [],
-  );
-
-  // 검색어/지점 변경 시 웹으로 전달
-  useEffect(() => {
-    if (!searchEnabled) return;
-    sendSearch({ q: searchQuery ?? '', branch: searchBranch ?? 'ALL' });
-  }, [searchEnabled, searchQuery, searchBranch, sendSearch]);
-
-  // 검색 제출(엔터) 트리거 바인딩 (refetchWebviewRef와 동일 패턴)
-  useEffect(() => {
-    if (searchSubmitRef) {
-      searchSubmitRef.current = () =>
-        sendSearch({
-          q: searchLatestRef.current.query,
-          branch: searchLatestRef.current.branch,
-          submit: true,
-        });
-    }
-  }, [searchSubmitRef, sendSearch]);
-
   const handlePostMessage = useCallback(
     ({ nativeEvent }: WebViewMessageEvent) => {
-      // 검색 브릿지 메시지는 단일 객체({ type: 'SEARCH_*' })로 온다(배열 아님).
-      if (searchEnabledRef.current) {
-        let searchMsg: any = null;
-        try {
-          searchMsg = JSON.parse(nativeEvent.data);
-        } catch {
-          searchMsg = null;
-        }
-        if (searchMsg && !Array.isArray(searchMsg)) {
-          if (searchMsg.type === 'SEARCH_WEB_READY') {
-            searchReadyRef.current = true;
-            sendSearch({
-              q: searchLatestRef.current.query,
-              branch: searchLatestRef.current.branch,
-            });
-            return;
-          }
-          if (
-            searchMsg.type === 'SEARCH_SET_QUERY' &&
-            typeof searchMsg.q === 'string'
-          ) {
-            onSearchSetQueryRef.current?.(searchMsg.q);
-            return;
-          }
-          if (searchMsg.type === 'SEARCH_DISMISS_KEYBOARD') {
-            Keyboard.dismiss();
-            return;
-          }
-        }
-      }
-
       const messageFromWebView = parseJsonOnce(nativeEvent.data);
       if (!messageFromWebView) return;
 
@@ -432,7 +334,7 @@ const CommonWebview = ({
         },
       );
     },
-    [navigation, sendSearch],
+    [navigation],
   );
 
   const onLoadProgress = useCallback(
@@ -537,10 +439,6 @@ true;
   // webViewRef.current?.postMessage('refetch_from_app');
 
   const handleScroll = useCallback((event: any) => {
-    // 검색 모드: 웹 컨텐츠 스크롤(드래그) 시 네이티브 입력 키보드 내림
-    if (searchEnabledRef.current) {
-      Keyboard.dismiss();
-    }
     const yOffset = Number(event.nativeEvent.contentOffset.y);
     if (yOffset <= 0) {
       setEnableRefresher(() => true);
@@ -643,9 +541,9 @@ true;
       onRenderProcessGone: onContentProcessDidTerminate, // for android
       // =======================================================================
       scrollEnabled: !pullToRefreshEnabled ? false : true,
-      // ===== 검색 모드: 네이티브 입력창이 소유한 키보드 대응 =====
-      keyboardDisplayRequiresUserAction: searchEnabled ? false : undefined,
-      hideKeyboardAccessoryView: searchEnabled ? true : undefined,
+      // ===== 웹 인풋 화면(/search): 웹의 autoFocus 허용 + 키보드 액세서리 제거 =====
+      keyboardDisplayRequiresUserAction: webKeyboardInput ? false : undefined,
+      hideKeyboardAccessoryView: webKeyboardInput ? true : undefined,
     };
   }, [
     getNavigationStateScript,
@@ -654,7 +552,7 @@ true;
     onContentProcessDidTerminate,
     onShouldStartLoadWithRequest,
     pullToRefreshEnabled,
-    searchEnabled,
+    webKeyboardInput,
     // ready,
     source,
   ]);
@@ -713,7 +611,6 @@ true;
           {...commonWebViewProps}
           onLoadProgress={onLoadProgress}
           pullToRefreshEnabled={pullToRefreshEnabled}
-          onScroll={searchEnabled ? handleScroll : undefined}
         />
         {showLoadingOverlay && (
           <AnimatedView style={[styles.progressWrapper, overlayAnimatedStyle]}>
@@ -738,9 +635,7 @@ const areEqual = (prev: Props, cur: Props) => {
     prev?.urlPath === cur?.urlPath &&
     prev?.pullToRefreshEnabled === cur?.pullToRefreshEnabled &&
     prev?.withIOSKeyboardAvoiding === cur?.withIOSKeyboardAvoiding &&
-    // 검색 모드: 검색어/지점이 바뀌면 리렌더되어 웹으로 push되어야 한다
-    prev?.search?.query === cur?.search?.query &&
-    prev?.search?.branch === cur?.search?.branch
+    prev?.webKeyboardInput === cur?.webKeyboardInput
   );
 };
 
