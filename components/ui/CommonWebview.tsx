@@ -465,12 +465,28 @@ const CommonWebview = ({
     return { opacity: overlayOpacity.value };
   });
 
-  //onNavigationStateChange ios,android 동작 방식이 다른문제 해결. https://github.com/react-native-webview/react-native-webview/issues/24
-  const getNavigationStateScript = useMemo(() => {
+  // 앱 컨텍스트(앱 버전 + safe-area) 주입 스크립트.
+  // 콘텐츠 로드 전(injectedJavaScriptBeforeContentLoaded)과 로드 후(injectedJavaScript)
+  // 양쪽에 넣는다:
+  //  - 로드 후에만 넣으면(안드로이드 = onPageFinished) 웹 하이드레이션이 먼저 끝나
+  //    window.__safeArea / __appVersion을 못 읽고 굳는다(헤더가 상태바에 붙고,
+  //    이미지 뷰어가 구버전 경로로 빠져 모달이 안 뜬다).
+  //  - 안드로이드의 before-content는 onPageStarted 기반이라 documentStart 보장이 아니므로
+  //    로드 후 주입도 "보장 폴백"으로 남긴다. (the-rich index-finpong 웹뷰와 동일 패턴)
+  // 마지막에 safe-area-update를 쏴서 늦게 도착해도 웹이 다시 읽게 한다.
+  const appContextScript = useMemo(() => {
     const appVersion = Constants.expoConfig?.version ?? '0.0.0';
     return `
 window.__appVersion = '${appVersion}';
 window.__safeArea = { top: ${adjustedSafeTop}, bottom: ${safeBottom} };
+try { window.dispatchEvent(new Event('safe-area-update')); } catch (e) {}
+`;
+  }, [adjustedSafeTop, safeBottom]);
+
+  //onNavigationStateChange ios,android 동작 방식이 다른문제 해결. https://github.com/react-native-webview/react-native-webview/issues/24
+  const getNavigationStateScript = useMemo(() => {
+    return `
+${appContextScript}
 (function() {
   function wrap(fn) {
     return function wrapper() {
@@ -487,13 +503,13 @@ window.__safeArea = { top: ${adjustedSafeTop}, bottom: ${safeBottom} };
 })();
 true;
 `;
-  }, [adjustedSafeTop, safeBottom]);
+  }, [appContextScript]);
 
+  // inset이 나중에 바뀌는 경우(회전/시스템 UI 변화)에 이미 떠 있는 페이지로 재주입.
+  // 최초 주입은 위 before/after content 스크립트가 담당한다.
   useEffect(() => {
-    webViewRef.current?.injectJavaScript(
-      `window.__safeArea = { top: ${adjustedSafeTop}, bottom: ${safeBottom} }; window.dispatchEvent(new Event('safe-area-update')); true;`,
-    );
-  }, [adjustedSafeTop, safeBottom]);
+    webViewRef.current?.injectJavaScript(`${appContextScript} true;`);
+  }, [appContextScript]);
 
   useEffect(() => {
     if (refetchWebviewRef) {
@@ -563,12 +579,13 @@ true;
 
   // synced-storage 초기 스냅샷. useSyncedStorageSnapshot 구독으로 값 변경 시 리렌더되며,
   // 이 prop이 새로 전달되면 다음 웹뷰 reload(pull-to-refresh 등)에서 최신 값이 주입된다.
+  // 앱 컨텍스트(버전/safe-area)도 함께 넣어 웹이 첫 렌더부터 값을 보게 한다.
   const injectedJavaScriptBeforeContentLoaded = useMemo(
-    () => buildInitialSyncedStorageScript(),
+    () => `${appContextScript}\n${buildInitialSyncedStorageScript()}`,
     // syncedStorageSnapshot은 스냅샷 변경 시 스크립트를 재계산하기 위한 의도적 의존성이다
     // (buildInitialSyncedStorageScript가 내부적으로 최신 스토리지를 읽음).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [syncedStorageSnapshot],
+    [syncedStorageSnapshot, appContextScript],
   );
 
   const commonWebViewProps = useMemo(() => {
