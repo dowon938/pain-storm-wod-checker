@@ -15,7 +15,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Keyboard,
@@ -135,7 +135,12 @@ export default function SearchScreen() {
     },
   });
 
-  const items = data?.pages.flatMap((p) => p.items) ?? [];
+  // FlatList의 data prop identity를 고정한다. 매 렌더마다 새 배열을 만들면
+  // 카드가 memo여도 VirtualizedList가 통째로 재조정된다.
+  const items = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data],
+  );
   const total = data?.pages[0]?.total ?? 0;
 
   // 디바운스 대기 중에도 "검색 중"으로 취급(웹과 동일: 입력 즉시 로딩 표기).
@@ -256,21 +261,29 @@ export default function SearchScreen() {
     setBranch(value);
   };
 
+  // 마지막으로 최근검색에 커밋한 검색어. 같은 검색어를 반복 저장하지 않기 위한 가드.
+  // 저장 결과는 dedupe라 값 자체는 같지만 addRecentSearch가 매번 새 배열을 반환해
+  // setRecent → 화면 전체 리렌더 + MMKV write가 딸려온다. 드래그마다 이게 도는 건 낭비.
+  const committedTermRef = useRef<string | null>(null);
+  const commitRecent = useCallback((term: string) => {
+    if (!term || committedTermRef.current === term) return;
+    committedTermRef.current = term;
+    setRecent(addRecentSearch(term));
+  }, []);
+
   // 엔터(검색) → 최근검색 저장. 결과 갱신은 디바운스 검색이 이미 처리한다.
   const onSubmit = () => {
-    if (!trimmed) return;
-    setRecent(addRecentSearch(trimmed));
+    commitRecent(trimmed);
   };
 
   // 결과를 드래그하면 키보드를 내린다(keyboardDismissMode='on-drag').
   // 결과를 스크롤한다 = 그 검색어로 결과를 훑어봤다는 뜻이라, 엔터를 안 눌렀어도
   // 이 시점에 최근검색으로 저장한다(웹과 동일). 키보드 열림 여부는 확인하지
   // 않는다 — on-drag 디스미스가 이 콜백보다 먼저 처리되면 이미 닫혀 있어
-  // 저장이 스킵되고, 반복 드래그는 dedupe라 저장해도 무해하다.
+  // 저장이 스킵된다.
   const onScrollBeginDrag = useCallback(() => {
-    const term = query.trim();
-    if (term) setRecent(addRecentSearch(term));
-  }, [query]);
+    commitRecent(query.trim());
+  }, [query, commitRecent]);
 
   const onSelectRecent = (term: string) => {
     setQuery(term);
@@ -311,6 +324,42 @@ export default function SearchScreen() {
     ? `${branchLabel} “${debouncedQ}” 결과 ${total}건`
     : ' ';
 
+  // ── 리스트 props ──
+  // 인라인으로 두면 부모가 리렌더될 때마다 새 identity가 되어 카드의 memo가
+  // 무의미해진다(셀 element 재생성 + props 비교가 매번 돈다).
+  const renderItem = useCallback(
+    ({ item }: { item: SearchItem }) => (
+      <SearchResultCard item={item} onSelect={openDetail} />
+    ),
+    [openDetail],
+  );
+  const keyExtractor = useCallback(
+    (item: SearchItem) => `${item.date}-${item.branchId}`,
+    [],
+  );
+  const recentContentStyle = useMemo(
+    () => ({ paddingTop: headerHeight, paddingBottom: listBottomPad }),
+    [headerHeight, listBottomPad],
+  );
+  const listContentStyle = useMemo(
+    () => ({
+      paddingTop: headerHeight + 4,
+      paddingBottom: listBottomPad,
+      paddingHorizontal: 12,
+      gap: 8,
+    }),
+    [headerHeight, listBottomPad],
+  );
+  const listFooter = useMemo(
+    () =>
+      isFetchingNextPage ? (
+        <Text style={styles.footerText}>불러오는 중…</Text>
+      ) : !hasNextPage ? (
+        <Text style={styles.footerText}>더 이상 결과가 없습니다</Text>
+      ) : null,
+    [isFetchingNextPage, hasNextPage],
+  );
+
   return (
     <View style={styles.screen}>
       {/* ── 컨텐츠(헤더 + 결과/최근검색) — 진입 시 페이드/슬라이드업 ── */}
@@ -319,10 +368,7 @@ export default function SearchScreen() {
         {!trimmed && (
           <ScrollView
             style={styles.fill}
-            contentContainerStyle={{
-              paddingTop: headerHeight,
-              paddingBottom: listBottomPad,
-            }}
+            contentContainerStyle={recentContentStyle}
             keyboardShouldPersistTaps='handled'
             keyboardDismissMode='on-drag'
             automaticallyAdjustKeyboardInsets
@@ -365,29 +411,16 @@ export default function SearchScreen() {
           <FlatList
             style={styles.fill}
             data={items}
-            keyExtractor={(item) => `${item.date}-${item.branchId}`}
-            renderItem={({ item }) => (
-              <SearchResultCard item={item} onSelect={openDetail} />
-            )}
-            contentContainerStyle={{
-              paddingTop: headerHeight + 4,
-              paddingBottom: listBottomPad,
-              paddingHorizontal: 12,
-              gap: 8,
-            }}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            contentContainerStyle={listContentStyle}
             keyboardShouldPersistTaps='handled'
             keyboardDismissMode='on-drag'
             automaticallyAdjustKeyboardInsets
             onScrollBeginDrag={onScrollBeginDrag}
             onEndReached={onEndReached}
             onEndReachedThreshold={0.6}
-            ListFooterComponent={
-              isFetchingNextPage ? (
-                <Text style={styles.footerText}>불러오는 중…</Text>
-              ) : !hasNextPage ? (
-                <Text style={styles.footerText}>더 이상 결과가 없습니다</Text>
-              ) : null
-            }
+            ListFooterComponent={listFooter}
           />
         )}
 
