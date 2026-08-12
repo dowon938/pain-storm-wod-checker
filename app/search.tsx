@@ -1,6 +1,7 @@
 import RecentSearches from '@/components/search/RecentSearches';
 import SearchResultCard from '@/components/search/SearchResultCard';
 import { hapticLight } from '@/hooks/haptic';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import {
   addRecentSearch,
   clearRecentSearches,
@@ -93,16 +94,10 @@ export default function SearchScreen() {
     setLastQuery(query);
   }, [query]);
 
-  // 디바운스된 검색어. 빈 검색어는 즉시 반영(결과 비우고 최근검색 노출).
-  const [debouncedQ, setDebouncedQ] = useState(trimmed);
-  useEffect(() => {
-    if (!trimmed) {
-      setDebouncedQ('');
-      return;
-    }
-    const timer = setTimeout(() => setDebouncedQ(trimmed), DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [trimmed]);
+  // 디바운스된 검색어. 빈 검색어는 디바운스 대상이 아니라 즉시 반영한다
+  // (결과 비우고 최근검색 노출) — state 왕복 없이 렌더 중에 결정.
+  const debouncedQ = useDebouncedValue(trimmed, DEBOUNCE_MS);
+  const effectiveQ = trimmed ? debouncedQ : '';
 
   const [recent, setRecent] = useState<string[]>(() => getRecentSearches());
 
@@ -118,12 +113,12 @@ export default function SearchScreen() {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: ['wod-search', debouncedQ, branch],
-    enabled: debouncedQ.length > 0,
+    queryKey: ['wod-search', effectiveQ, branch],
+    enabled: effectiveQ.length > 0,
     initialPageParam: 0,
     queryFn: ({ pageParam, signal }) =>
       searchWods({
-        q: debouncedQ,
+        q: effectiveQ,
         branch,
         limit: PAGE_SIZE,
         offset: pageParam,
@@ -144,7 +139,7 @@ export default function SearchScreen() {
   const total = data?.pages[0]?.total ?? 0;
 
   // 디바운스 대기 중에도 "검색 중"으로 취급(웹과 동일: 입력 즉시 로딩 표기).
-  const isSearching = !!trimmed && (trimmed !== debouncedQ || isLoading);
+  const isSearching = !!trimmed && (trimmed !== effectiveQ || isLoading);
   const isReady = !!trimmed && !isSearching && !isError && !!data;
 
   // ── 진입 애니메이션 (예전 네이티브 셸과 동일) ──
@@ -321,7 +316,7 @@ export default function SearchScreen() {
 
   const branchLabel = branch === 'ALL' ? '전체' : branch;
   const countText = isReady
-    ? `${branchLabel} “${debouncedQ}” 결과 ${total}건`
+    ? `${branchLabel} “${effectiveQ}” 결과 ${total}건`
     : ' ';
 
   // ── 리스트 props ──
