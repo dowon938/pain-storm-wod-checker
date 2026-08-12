@@ -264,10 +264,12 @@ export default function SearchScreen() {
 
   // 결과를 드래그하면 키보드를 내린다(keyboardDismissMode='on-drag').
   // 결과를 스크롤한다 = 그 검색어로 결과를 훑어봤다는 뜻이라, 엔터를 안 눌렀어도
-  // 이 시점에 최근검색으로 저장한다(웹과 동일).
+  // 이 시점에 최근검색으로 저장한다(웹과 동일). 키보드 열림 여부는 확인하지
+  // 않는다 — on-drag 디스미스가 이 콜백보다 먼저 처리되면 이미 닫혀 있어
+  // 저장이 스킵되고, 반복 드래그는 dedupe라 저장해도 무해하다.
   const onScrollBeginDrag = useCallback(() => {
     const term = query.trim();
-    if (term && Keyboard.isVisible()) setRecent(addRecentSearch(term));
+    if (term) setRecent(addRecentSearch(term));
   }, [query]);
 
   const onSelectRecent = (term: string) => {
