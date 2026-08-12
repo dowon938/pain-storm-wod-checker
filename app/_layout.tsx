@@ -50,8 +50,9 @@ function RootLayout() {
               headerShown: false,
               presentation: 'card',
               animation: 'fade_from_bottom',
-              gestureEnabled: true,
-              gestureDirection: 'vertical',
+              // 닫기는 X 버튼으로만. 세로 제스처는 결과 리스트 스크롤과
+              // 상시 충돌해서 끈다(가장자리 스트립만 잡혀 오히려 혼란).
+              gestureEnabled: false,
             }}
           />
           {/* 범용 웹뷰 스택. 웹 DEEP_LINK로 열리는 상세 등을 네이티브 스택으로 push */}
