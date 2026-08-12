@@ -50,6 +50,7 @@ function RootLayout() {
               headerShown: false,
               presentation: 'card',
               animation: 'fade_from_bottom',
+              animationDuration: 150,
               // 닫기는 X 버튼으로만. 세로 제스처는 결과 리스트 스크롤과
               // 상시 충돌해서 끈다(가장자리 스트립만 잡혀 오히려 혼란).
               gestureEnabled: false,
